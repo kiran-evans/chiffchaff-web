@@ -1,10 +1,31 @@
-import { Box, Button, FormControl, Input, InputLabel, Link, Typography } from '@mui/material'
+import { Alert, Box, Button, CircularProgress, FormControl, Input, InputLabel, Link, Snackbar, Typography } from '@mui/material'
 import React from 'react'
 import { useState } from 'react'
+import axios from 'axios';
 
 export default function Splash() {
 
-    const [hasAccount, setHasAccount] = useState(false);
+  const [hasAccount, setHasAccount] = useState(false);
+  const [userBody, setUserBody] = useState({ email: "", username: "", password: "" });
+  const [isLoading, setIsLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ isOpen: false, message: "", severity: "" });
+
+  const handleSignUpSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const res = await axios.post(`${import.meta.env.ENV_SERVER_URL}/user`, userBody);
+      setUserBody({ email: "", username: "", password: "" });
+      setIsLoading(false);      
+      setSnackbar({ isOpen: true, message: "Account created.", severity: 'success' });
+      return console.log(res.data);
+
+    } catch (err) {
+      setIsLoading(false);
+      return setSnackbar({ isOpen: true, message: `Failed to create account. ${err}`, severity: 'error' });
+    }
+  }
 
   return (
       <Box sx={{ flex: 1, display: "flex", alignItems: "center"}}>
@@ -33,27 +54,30 @@ export default function Splash() {
                   :
                   <>
                 <Typography variant="h2">Sign Up</Typography>
-                <form>
+                <form onSubmit={e => handleSignUpSubmit(e)}>
                     <Box sx={{display: "flex", flexDirection: "column"}}>
                             <FormControl>
                                 <InputLabel htmlFor='email'>Email address</InputLabel>
-                                <Input autoComplete autoFocus required type="email" id="email" />
+                                <Input autoComplete autoFocus required type="email" id="email" value={userBody.email} onChange={e => setUserBody({...userBody, email: e.target.value})} />
                             </FormControl>
                             <FormControl sx={{marginTop: "10px"}}>
                                 <InputLabel htmlFor='username'>Username</InputLabel>
-                                <Input autoComplete required type="username" id="username" />
+                                <Input autoComplete required type="username" id="username" value={userBody.username} onChange={e => setUserBody({...userBody, username: e.target.value})} />
                             </FormControl>
                             <FormControl sx={{marginTop: "10px"}}>
                                 <InputLabel htmlFor='password'>Password</InputLabel>
-                                <Input autoComplete required type="password" id="password" />
+                                <Input autoComplete required type="password" id="password" value={userBody.password} onChange={e => setUserBody({...userBody, password: e.target.value})} />
                         </FormControl>
-                      <Button type="submit" variant='contained' sx={{ alignSelf: "flex-end", margin: "10px 0" }}>Sign up</Button>
+                <Button type="submit" variant='contained' sx={{ alignSelf: "flex-end", margin: "10px 0" }} disabled={isLoading}>{isLoading ? <><CircularProgress size={20} />&nbsp;Loading...</> : "Sign up"}</Button>
                       <Link onClick={() => setHasAccount(true)}>Already have an account? Login.</Link>
                     </Box>
                 </form>
                   </>
               }
-          </Box>
+      </Box>
+      <Snackbar open={snackbar.isOpen} autoHideDuration={5000} onClose={() => setSnackbar({ ...snackbar, isOpen: false })}>
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
     </Box>
   )
 }
