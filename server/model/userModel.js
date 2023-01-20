@@ -17,6 +17,21 @@ const userModel = mongoose.Schema({
     password: {
         type: String,
         required: true,
+    },
+    contacts: {
+        type: Array,
+        default: []
+    },
+    userColor: {
+        type: String,
+        default: function () {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
     }
 });
 
