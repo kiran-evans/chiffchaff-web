@@ -23,12 +23,23 @@ const createUser = async (req, res) => {
 
 const getUser = async (req, res) => {
     try {
-        const foundUser = await User.findById(req.query.id);
+        if (req.query.id) {
+            const foundUser = await User.findById(req.query.id);
 
-        if (!foundUser) return res.status(404).json(`No user found.`);
+            if (!foundUser) return res.status(404).json(`No user found.`);
 
-        const { password, ...userBody } = foundUser._doc;
-        return res.status(200).json(userBody);
+            const { password, ...userBody } = foundUser._doc;
+            return res.status(200).json(userBody);
+        }
+
+        if (req.body.username) {
+            const foundUser = await User.findOne({ username: req.body.username });
+
+            if (!foundUser) return res.status(404).json(`No user found.`);
+
+            const { password, ...userBody } = foundUser._doc;
+            return res.status(200).json(userBody);
+        }
 
     } catch (err) {
         return res.status(500).json(`Failed to get user. ${err}`);
@@ -68,9 +79,28 @@ const deleteUser = async (req, res) => {
     }
 }
 
+const loginUser = async (req, res) => {
+    try {
+        const foundUser = await User.findOne({ username: req.body.username });
+
+        if (!foundUser) return res.status(404).json(`No user found.`);
+
+        const passwordIsValid = await bcrypt.compare(req.body.password, foundUser.password);
+
+        if (!passwordIsValid) return res.status(400).json(`Invalid password.`);
+
+        const { password, ...userBody } = foundUser._doc;
+        return res.status(200).json(userBody);
+
+    } catch (err) {
+        return res.status(500).json(`Failed to login user. ${err}`);
+    }
+}
+
 module.exports = {
     createUser,
     getUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    loginUser
 }
