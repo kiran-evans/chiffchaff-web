@@ -7,6 +7,7 @@ export default defineConfig({
   envDir: './config',
   envPrefix: 'ENV',
   server: {
-    corse: true
+    corse: true,
+    port: 5174
   }
 })

@@ -1,7 +1,10 @@
 import { Alert, Box, Button, CircularProgress, FormControl, Input, InputLabel, Link, Snackbar, Typography } from '@mui/material'
 import React from 'react'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
+import { loginCall } from '../context/UserActions';
+import { useNavigate } from 'react-router-dom';
 
 export default function Splash() {
 
@@ -10,16 +13,31 @@ export default function Splash() {
   const [isLoading, setIsLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ isOpen: false, message: "", severity: "" });
 
+  const { dispatch } = useContext(AuthContext);
+  const navigator = useNavigate();
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      await loginCall(userBody, dispatch);
+      return navigator('/');
+
+    } catch (err) {
+      setIsLoading(false);
+      return setSnackbar({ isOpen: true, message: `Failed to login. ${err}`, severity: 'error' });
+    }
+  }
+
   const handleSignUpSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
       const res = await axios.post(`${import.meta.env.ENV_SERVER_URL}/user`, userBody);
-      setUserBody({ email: "", username: "", password: "" });
-      setIsLoading(false);      
-      setSnackbar({ isOpen: true, message: "Account created.", severity: 'success' });
-      return console.log(res.data);
+      await loginCall(res.data, dispatch);
+      return navigator('/');
 
     } catch (err) {
       setIsLoading(false);
@@ -36,17 +54,17 @@ export default function Splash() {
               {hasAccount ? 
                   <>
                 <Typography variant="h2">Login</Typography>
-                <form>
+                <form onSubmit={e => handleLoginSubmit(e)}>
                     <Box sx={{display: "flex", flexDirection: "column"}}>
                             <FormControl sx={{marginTop: "10px"}}>
                                 <InputLabel htmlFor='username'>Username</InputLabel>
-                                <Input autoComplete required type="username" id="username" />
+                                <Input autoComplete required type="username" id="username" value={userBody.username} onChange={e => setUserBody({...userBody, username: e.target.value})} />
                             </FormControl>
                             <FormControl sx={{marginTop: "10px"}}>
                                 <InputLabel htmlFor='password'>Password</InputLabel>
-                                <Input autoComplete required type="password" id="password" />
+                                <Input autoComplete required type="password" id="password" value={userBody.password} onChange={e => setUserBody({...userBody, password: e.target.value})} />
                         </FormControl>
-                      <Button type="submit" variant='contained' sx={{ alignSelf: "flex-end", margin: "10px 0" }}>Login</Button>
+                      <Button type="submit" variant='contained' sx={{ alignSelf: "flex-end", margin: "10px 0" }} disabled={isLoading}>{isLoading ? <><CircularProgress size={20} />&nbsp;Loading...</> : "Login"}</Button>
                       <Link onClick={() => setHasAccount(false)}>Need an account? Sign up.</Link>
                     </Box>
                 </form>
