@@ -1,5 +1,6 @@
 const dark1 = "#090909";
 const dark2 = "#222222";
+const dark3 = "#555555";
 
 const light1 = "#fafafa";
 const light2 = "#efefef";
@@ -18,7 +19,8 @@ export default {
         },
         background: {
             default: dark1,
-            paper: dark2
+            paper: dark2,
+            card: dark3
         },
         text: {
             primary: light1,
@@ -30,6 +32,14 @@ export default {
             styleOverrides: {
                 root: {
                     cursor: "pointer"
+                }
+            }
+        },
+        MuiTypography: {
+            styleOverrides: {
+                root: {
+                    display: "flex",
+                    alignItems: "center"
                 }
             }
         }

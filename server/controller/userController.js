@@ -23,6 +23,20 @@ const createUser = async (req, res) => {
 
 const getUser = async (req, res) => {
     try {
+        if (req.query.many) {
+            const foundUsers = await User.find({ username: { $regex: req.query.username, $options: 'i' } }, null, { limit: 10 } );
+            
+            let foundUsersList = [];
+
+            for (const user of foundUsers) {
+                if (user._id.toString() === req.query.id) continue;
+                const { password, ...userBody } = user._doc;
+                foundUsersList.push(userBody);
+            };
+
+            return res.status(200).json(foundUsersList);
+        }
+        
         if (req.query.id) {
             const foundUser = await User.findById(req.query.id);
 
