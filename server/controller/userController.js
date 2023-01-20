@@ -1,5 +1,5 @@
-import bcrypt from 'bcrypt';
-import User from '../model/userModel';
+const bcrypt = require('bcrypt');
+const User = require('../model/userModel');
 
 const createUser = async (req, res) => {
     try {
@@ -71,5 +71,6 @@ const deleteUser = async (req, res) => {
 module.exports = {
     createUser,
     getUser,
-    updateUser
+    updateUser,
+    deleteUser
 }

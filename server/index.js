@@ -34,7 +34,10 @@ const connectDB = async () => {
   }
 }
 
+const userRoutes = require('./routes/userRoutes');
+app.use('/user', userRoutes);
+
 server.listen(process.env.PORT, async () => {
-    await connectDB();
-    console.log(`Server started on port ${process.env.PORT}`);
-})
+  await connectDB();
+  console.log(`Server started on port ${process.env.PORT}`);
+});
