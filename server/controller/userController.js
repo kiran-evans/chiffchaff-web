@@ -3,7 +3,7 @@ const User = require('../model/userModel');
 
 const createUser = async (req, res) => {
     try {
-        const salt = await bcrypt.genSalt(process.env.SALT_FACTOR);
+        const salt = await bcrypt.genSalt(parseInt(process.env.SALT_FACTOR));
         const hashedPw = await bcrypt.hash(req.body.password, salt);
 
         const newUser = new User({
