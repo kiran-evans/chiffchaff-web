@@ -1,26 +1,37 @@
 import { Divider, Input, InputAdornment, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react'
-import { Contacts, Search } from '@mui/icons-material';
+import { Contacts, EmojiPeople, PersonSearch, Search } from '@mui/icons-material';
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import UserListItem from './UserListItem';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import PropTypes from 'prop-types';
 
-export default function ContactsBar() {
+export default function ContactsBar(props) {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [foundUsers, setFoundUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [contacts, setContacts] = useState([]);
+    const [contactRequests, setContactRequests] = useState([]);
     
     const { user } = useContext(AuthContext);
+
+    const { socket } = props;
+
+    useEffect(() => {
+        socket.on('CONTACT_REQUEST', contactData => {
+            setContactRequests([...contactRequests, contactData]);
+        });
+    }, []);
 
     useEffect(() => {
         const getContacts = async () => {
             if (!user.contacts) return;
             setIsLoading(true);
+            if (contacts) setContacts([]);
             await user.contacts.forEach(async contactId => {
                 try {
                     const res = await axios.get(`${import.meta.env.ENV_SERVER_URL}/user?id=${contactId}`);
@@ -53,7 +64,10 @@ export default function ContactsBar() {
     }, [searchQuery]);
     
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", padding: "20px 15px"}}>
+      <Box sx={{ display: "flex", flexDirection: "column", padding: "20px 15px" }}>
+          <Divider>
+              <Typography variant="h6"><PersonSearch />&nbsp;Find Contacts</Typography>
+          </Divider>
         <Box sx={{ flex: 1, display: "flex", alignItems: "center" }}>
         <Input sx={{flex: 1}} startAdornment={
             <InputAdornment position="start">
@@ -63,7 +77,16 @@ export default function ContactsBar() {
         </Box>
         <Box sx={{alignSelf: "flex-start", mt: "10px", mb: "20px"}}>
             {foundUsers.map(foundUser => (
-                <UserListItem key={foundUser._id} data={foundUser} />
+                <UserListItem key={foundUser._id} data={foundUser} socket={props.socket} />
+            ))}
+          </Box>
+          
+          <Divider>
+              <Typography variant="h6"><EmojiPeople />&nbsp;Contact Requests</Typography>
+          </Divider>
+        <Box sx={{ alignSelf: "flex-start", mt: "10px", mb: "20px" }}>
+            {contactRequests.map(contact => (
+                <UserListItem key={contact._id} data={contact} socket={props.socket} />
             ))}
         </Box>
 
@@ -72,9 +95,13 @@ export default function ContactsBar() {
         </Divider>
         <Box sx={{ alignSelf: "flex-start", mt: "10px", mb: "20px" }}>
             {contacts.map(contact => (
-                <UserListItem key={contact._id} data={contact} />
+                <UserListItem key={contact._id} data={contact} socket={props.socket} />
             ))}
         </Box>
     </Box>
   )
+}
+
+ContactsBar.propTypes = {
+    socket: PropTypes.object.isRequired
 }

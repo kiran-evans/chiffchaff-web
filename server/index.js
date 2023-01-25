@@ -18,6 +18,9 @@ const io = require('socket.io')(server, {
   }
 });
 
+const socketCalls = require('./socketCalls');
+socketCalls(io);
+
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', true);
 
