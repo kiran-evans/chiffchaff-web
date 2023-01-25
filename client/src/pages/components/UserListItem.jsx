@@ -7,12 +7,11 @@ import { AuthContext } from '../../context/AuthContext';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { PersonAdd } from '@mui/icons-material';
-import axios from 'axios';
 
 export default function UserListItem(props) {
-    const { data } = props;
+    const { data, socket } = props;
 
-    const { user, dispatch } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
 
     const [isExistingContact, setIsExistingContact] = useState(false);
 
@@ -31,9 +30,7 @@ export default function UserListItem(props) {
     const handleAddClick = async () => {
         setIsLoading(true);
         try {
-            await axios.put(`${import.meta.env.ENV_SERVER_URL}/user?id=${user._id}`, {
-                contacts: [...user.contacts, data._id]
-            });
+            await socket.emit('CONTACT_REQUEST', { userData: user, contactData: data });
             return setIsLoading(false);
 
         } catch (err) {
@@ -54,5 +51,6 @@ export default function UserListItem(props) {
 }
 
 UserListItem.propTypes = {
-    data: PropTypes.object.isRequired
+    data: PropTypes.object.isRequired,
+    socket: PropTypes.object.isRequired
 }

@@ -42,6 +42,13 @@ export default {
                     alignItems: "center"
                 }
             }
+        },
+        MuiAvatar: {
+            styleOverrides: {
+                root: {
+                    border: `2px solid ${dark1}`
+                }
+            }
         }
     }
 }

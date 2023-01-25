@@ -7,12 +7,16 @@ import Header from './pages/components/Header';
 import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
 import { Navigate } from 'react-router-dom';
+import { useRef } from 'react';
+import { io } from 'socket.io-client';
 
 function App() {
 
   const theme = createTheme(themeOptions);
 
-  const { user } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
+    const persistedSocket = useRef(io(import.meta.env.ENV_SERVER_URL));
+    const socket = persistedSocket.current;
 
   return (
     <ThemeProvider theme={theme}>
@@ -22,7 +26,7 @@ function App() {
           {user && <Header />}
           <Box sx={{flex: 1, display: "flex", flexDirection: "column"}}>
             <Routes>
-              <Route exact path="/" element={user ? <Dashboard /> : <Navigate to="/login" />} />
+              <Route exact path="/" element={user ? <Dashboard socket={socket} /> : <Navigate to="/login" />} />
               <Route exact path="/login" element={user ? <Navigate to="/" /> : <Splash />} />
             </Routes>
           </Box>
