@@ -8,6 +8,7 @@ import UserListItem from './UserListItem';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import PropTypes from 'prop-types';
+import ContactRequest from './ContactRequest';
 
 export default function ContactsBar(props) {
 
@@ -25,22 +26,26 @@ export default function ContactsBar(props) {
         socket.on('CONTACT_REQUEST', contactData => {
             setContactRequests([...contactRequests, contactData]);
         });
+
+        return () => {
+            socket.off('CONTACT_REQUEST');
+        }
     }, []);
 
     useEffect(() => {
         const getContacts = async () => {
-            if (!user.contacts) return;
             setIsLoading(true);
-            if (contacts) setContacts([]);
-            await user.contacts.forEach(async contactId => {
+            if (!user.contacts) return;
+            let tempContacts = [];
+            for (const contactId of user.contacts) {
                 try {
                     const res = await axios.get(`${import.meta.env.ENV_SERVER_URL}/user?id=${contactId}`);
-                    setContacts([...contacts, res.data]);
-
+                    tempContacts.push(res.data);
                 } catch (err) {
                     throw new Error(`Failed to get contacts. ${err}`);
                 }
-            });
+            }
+            setContacts([...tempContacts]);
             setIsLoading(false);
         }
         getContacts();
@@ -86,7 +91,7 @@ export default function ContactsBar(props) {
           </Divider>
         <Box sx={{ alignSelf: "flex-start", mt: "10px", mb: "20px" }}>
             {contactRequests.map(contact => (
-                <UserListItem key={contact._id} data={contact} socket={props.socket} />
+                <ContactRequest key={contact._id} data={contact} socket={props.socket} />
             ))}
         </Box>
 

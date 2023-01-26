@@ -24,3 +24,16 @@ export const logoutCall = async (user, dispatch) => {
         throw new Error(`Failed to logout. ${err}`);
     }
 }
+
+export const refreshUserData = async (user, dispatch) => {
+    dispatch({ type: 'LOGIN_START' });
+
+    try {
+        const res = await axios.get(`${import.meta.env.ENV_SERVER_URL}/user?id=${user._id.toString()}`);
+        dispatch({ type: 'LOGIN_SUCCESS', payload: res.data });
+        return localStorage.setItem('loggedInUser', JSON.stringify(res.data));
+    } catch (err) {
+        dispatch({ type: 'LOGIN_FAILURE', payload: err });
+        throw new Error(`Failed to refresh user data. ${err}`);
+    }
+}

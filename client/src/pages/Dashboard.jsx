@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material'
+import { Alert, Box, Snackbar, snackbarClasses, Typography } from '@mui/material'
 import React from 'react'
 import ContactsBar from './components/ContactsBar'
 import PropTypes from 'prop-types';
@@ -13,6 +13,7 @@ export default function Dashboard(props) {
     const { socket } = props;
 
     const [isConnected, setIsConnected] = useState(false);
+    const [alert, setAlert] = useState({ isOpen: false, severity: null, text: "" });
 
     useEffect(() => {
         socket.on('connect', () => {
@@ -23,21 +24,34 @@ export default function Dashboard(props) {
         socket.on('disconnect', () => {
             setIsConnected(false);
         });
+
+        socket.on('ALERT', params => {
+            setAlert({ isOpen: true, severity: params.severity, text: params.text });
+        });
+
+        return () => {
+            socket.off('connect');
+            socket.off('disconnect');
+            socket.off('ALERT');
+        }
     }, []);
 
-  return (
-    <Box sx={{ display: "flex", flex: 1 }}>
-          <Box sx={{ flex: 1, backgroundColor: "background.paper", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-              <ContactsBar socket={socket} />
-              <Box sx={{display: "flex", justifyContent: "center", padding: "10px 0", backgroundColor: isConnected ? "success.main" : "error.main"}}>
-                <Typography>{isConnected ? <><Public />&nbsp;Connected</> : <><PublicOff />&nbsp;Disconnected</>}</Typography>
-              </Box>
-      </Box>
-      <Box sx={{ flex: 4 }}>
-        Messages
-      </Box>
-    </Box>
-  )
+    return (
+        <Box sx={{ display: "flex", flex: 1 }}>
+                <Box sx={{ flex: 1, backgroundColor: "background.paper", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                    <ContactsBar socket={socket} />
+                    <Box sx={{display: "flex", justifyContent: "center", padding: "10px 0", backgroundColor: isConnected ? "success.main" : "error.main"}}>
+                    <Typography>{isConnected ? <><Public />&nbsp;Connected</> : <><PublicOff />&nbsp;Disconnected</>}</Typography>
+                    </Box>
+            </Box>
+            <Box sx={{ flex: 5 }}>
+                Messages
+            </Box>
+            <Snackbar open={alert.isOpen} onClose={() => setAlert({...alert, isOpen: false})} autoHideDuration={5000}>
+                <Alert severity={alert.severity}>{alert.text}</Alert>
+            </Snackbar>
+        </Box>
+    )
 }
 
 Dashboard.propTypes = {
