@@ -1,5 +1,5 @@
 import { Box } from '@mui/system'
-import React from 'react'
+
 import PropTypes from 'prop-types';
 import { Avatar, IconButton, Tooltip, Typography } from '@mui/material';
 import { useContext } from 'react';
