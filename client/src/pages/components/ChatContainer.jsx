@@ -3,23 +3,48 @@ import { Avatar, Box, IconButton, Input, InputAdornment, Typography } from '@mui
 import { Send } from '@mui/icons-material';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import { useEffect } from 'react';
+import axios from 'axios';
 
-export default function MessageContainer(props) {
+export default function ChatContainer(props) {
 
     const { user } = useContext(AuthContext);
-    const { socket, contact } = props;
+    const { socket, chat } = props;
 
     const [textContent, setTextContent] = useState("");
+    const [contact, setContact] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleTyping = e => {
         setTextContent(e.target.value)
     }
 
+    const getContactData = async contactId => {
+        try {
+            setIsLoading(true);
+            const res = await axios.get(`${import.meta.env.ENV_SERVER_URL}/user?id=${contactId}`);
+            setContact(res.data);
+            setIsLoading(false);
+        } catch (err) {
+            throw new Error(err.response.data);
+        }
+    }
+
+    useEffect(() => {
+        if (user._id.toString() === chat.participants[0]) {
+            getContactData(chat.participants[1]);
+        } else {
+            getContactData(chat.participants[0]);
+        }
+    }, []);
+
     return (
         <Box sx={{flex: 1, display: "flex", flexDirection: "column"}}>
-            <Box sx={{flex: 1, display: "flex", alignItems: "center", padding: "20px 40px", backgroundColor: "background.paper"}}>
-                <Avatar sx={{backgroundColor: contact.userColor, height: 60, width: 60, fontSize: 40, border: "3px solid", borderColor: "background.main", mr: "10px"}}>{contact.username[0].toUpperCase()}</Avatar>
-                <Typography variant="h3">{contact.username}</Typography>
+            <Box sx={{ flex: 1, display: "flex", alignItems: "center", padding: "20px 40px", backgroundColor: "background.paper" }}>
+                {contact && <>
+                    <Avatar sx={{backgroundColor: contact.userColor, height: 60, width: 60, fontSize: 40, border: "3px solid", borderColor: "background.main", mr: "10px"}}>{contact.username[0].toUpperCase()}</Avatar>
+                    <Typography variant="h3">{contact.username}</Typography>
+                </>}
             </Box>
             
             <Box sx={{ flex: 15 }}>
@@ -45,7 +70,7 @@ export default function MessageContainer(props) {
     )
 }
 
-MessageContainer.propTypes = {
+ChatContainer.propTypes = {
     socket: PropTypes.object.isRequired,
-    contact: PropTypes.object.isRequired
+    chat: PropTypes.object.isRequired
 }

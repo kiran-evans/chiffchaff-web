@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { PersonAdd, PersonAddAlt } from '@mui/icons-material';
 
-export default function UserListItem(props) {
+export default function UserSearchResultItem(props) {
     const { data, socket } = props;
 
     const { user } = useContext(AuthContext);
@@ -28,18 +28,13 @@ export default function UserListItem(props) {
 
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleAddClick = async () => {
+    const handleAddClick = () => {
         if (isLoading || hasSent) return;
         setIsLoading(true);
-        try {
-            await socket.emit('CONTACT_REQUEST', { userData: user, contactData: data });
-            setHasSent(true);
-            return setIsLoading(false);
-
-        } catch (err) {
-            setIsLoading(false);
-            throw new Error(`Failed to add contact. ${err}`);
-        }
+        socket.emit('CONTACT_REQUEST', { userData: user, contactData: data });
+        setHasSent(true);
+        setIsLoading(false);
+        return;
     }
 
     return (
@@ -58,7 +53,7 @@ export default function UserListItem(props) {
     )
 }
 
-UserListItem.propTypes = {
+UserSearchResultItem.propTypes = {
     data: PropTypes.object.isRequired,
     socket: PropTypes.object.isRequired
 }
