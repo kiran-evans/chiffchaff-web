@@ -49,6 +49,7 @@ export default function ContactsBar(props) {
 
             if (user.chats.length > 0) {
                 setSelectedChat(tempChats[0]);
+                socket.emit('SELECT_CHAT', tempChats[0]);
             }
             setIsLoading(null);
         }
@@ -73,12 +74,13 @@ export default function ContactsBar(props) {
 
     const handleChatClick = chat => {
         setSelectedChat(chat);
+        socket.emit('SELECT_CHAT', chat);
     }
     
     return (
         <Box sx={{flex: 1, display: "flex", flexDirection: "column", padding: "20px 15px", borderRight: "2px solid", borderColor: "background.card" }}>
             <Divider>
-                <Typography variant="h6"><PersonSearch />&nbsp;Find Chats</Typography>
+                <Typography variant="h6"><PersonSearch />&nbsp;Find Contacts</Typography>
             </Divider>
             <Box sx={{ display: "flex", mt: "10px", mb: "10px", alignItems: "center" }}>
                 <Input sx={{flex: 1}} startAdornment={
@@ -110,7 +112,7 @@ export default function ContactsBar(props) {
             <Divider>
                 <Typography variant="h6"><Contacts />&nbsp;Your Chats</Typography>
             </Divider>
-            <Box sx={{ alignSelf: "flex-start", mt: "20px", mb: "20px" }}>
+            <Box sx={{ mt: "20px", mb: "20px" }}>
                 {isLoading === 'CHATS' && <Typography variant="body1"><CircularProgress size={20} />&nbsp;Loading...</Typography>}                    
                 {chats.length > 0 &&
                     chats.map(chat => (

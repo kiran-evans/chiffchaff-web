@@ -6,7 +6,7 @@ const chatModel = mongoose.Schema({
         required: true,
         minLength: 2
     },
-    contentChunks: {
+    messages: {
         type: Array,
         required: true,
         default: []

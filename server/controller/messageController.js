@@ -10,6 +10,11 @@ const createMessage = async (req, res) => {
 
 const getMessage = async (req, res) => {
     try {
+        const foundMessage = await Message.findById(req.query.id);
+
+        if (!foundMessage) return res.status(404).json(`No message found.`);
+
+        return res.status(200).json(foundMessage._doc);
 
     } catch (err) {
         return res.status(500).json(`Failed to get message. ${err}`);

@@ -29,7 +29,7 @@ export default function ChatListItem(props) {
     }, []);
 
     return (
-        <Box sx={{ display: "flex", alignItems: "center", padding: "5px 15px", backgroundColor: "background.card", borderRadius: "10px", marginBottom: "5px" }}>
+        <Box sx={{display: "flex", alignItems: "center", padding: "5px 15px", backgroundColor: "background.card", borderRadius: "10px", marginBottom: "5px" }}>
             {contact &&
             <>
                 <Avatar sx={{ backgroundColor: contact.userColor, mr: "10px" }}>
