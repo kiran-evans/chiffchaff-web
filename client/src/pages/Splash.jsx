@@ -35,8 +35,8 @@ export default function Splash() {
     setIsLoading(true);
 
     try {
-      const res = await axios.post(`${import.meta.env.ENV_SERVER_URL}/user`, userBody);
-      await loginCall(res.data, dispatch);
+      await axios.post(`${import.meta.env.ENV_SERVER_URL}/user`, userBody);
+      await loginCall(userBody, dispatch);
       return navigator('/');
 
     } catch (err) {
@@ -58,11 +58,11 @@ export default function Splash() {
                     <Box sx={{display: "flex", flexDirection: "column"}}>
                             <FormControl sx={{marginTop: "10px"}}>
                                 <InputLabel htmlFor='username'>Username</InputLabel>
-                                <Input autoComplete required type="username" id="username" value={userBody.username} onChange={e => setUserBody({...userBody, username: e.target.value})} />
+                                <Input autoComplete="true" required type="username" id="username" value={userBody.username} onChange={e => setUserBody({...userBody, username: e.target.value})} />
                             </FormControl>
                             <FormControl sx={{marginTop: "10px"}}>
                                 <InputLabel htmlFor='password'>Password</InputLabel>
-                                <Input autoComplete required type="password" id="password" value={userBody.password} onChange={e => setUserBody({...userBody, password: e.target.value})} />
+                                <Input autoComplete="true" required type="password" id="password" value={userBody.password} onChange={e => setUserBody({...userBody, password: e.target.value})} />
                         </FormControl>
                       <Button type="submit" variant='contained' sx={{ alignSelf: "flex-end", margin: "10px 0" }} disabled={isLoading}>{isLoading ? <><CircularProgress size={20} />&nbsp;Loading...</> : "Login"}</Button>
                       <Link onClick={() => setHasAccount(false)}>Need an account? Sign up.</Link>
@@ -76,15 +76,15 @@ export default function Splash() {
                     <Box sx={{display: "flex", flexDirection: "column"}}>
                             <FormControl>
                                 <InputLabel htmlFor='email'>Email address</InputLabel>
-                                <Input autoComplete autoFocus required type="email" id="email" value={userBody.email} onChange={e => setUserBody({...userBody, email: e.target.value})} />
+                                <Input autoComplete="true" autoFocus required type="email" id="email" value={userBody.email} onChange={e => setUserBody({...userBody, email: e.target.value})} />
                             </FormControl>
                             <FormControl sx={{marginTop: "10px"}}>
                                 <InputLabel htmlFor='username'>Username</InputLabel>
-                                <Input autoComplete required type="username" id="username" value={userBody.username} onChange={e => setUserBody({...userBody, username: e.target.value})} />
+                                <Input autoComplete="true" required type="username" id="username" value={userBody.username} onChange={e => setUserBody({...userBody, username: e.target.value})} />
                             </FormControl>
                             <FormControl sx={{marginTop: "10px"}}>
                                 <InputLabel htmlFor='password'>Password</InputLabel>
-                                <Input autoComplete required type="password" id="password" value={userBody.password} onChange={e => setUserBody({...userBody, password: e.target.value})} />
+                                <Input autoComplete="true" required type="password" id="password" value={userBody.password} onChange={e => setUserBody({...userBody, password: e.target.value})} />
                         </FormControl>
                 <Button type="submit" variant='contained' sx={{ alignSelf: "flex-end", margin: "10px 0" }} disabled={isLoading}>{isLoading ? <><CircularProgress size={20} />&nbsp;Loading...</> : "Sign up"}</Button>
                       <Link onClick={() => setHasAccount(true)}>Already have an account? Login.</Link>

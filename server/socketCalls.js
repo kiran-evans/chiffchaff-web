@@ -1,3 +1,5 @@
+const Chat = require('./model/chatModel');
+const Message = require('./model/messageModel');
 const User = require('./model/userModel');
 
 module.exports = io => {
@@ -32,15 +34,49 @@ module.exports = io => {
             const { user1Data, user2Data } = params;
 
             try {
+                const newChat = new Chat({
+                    participants: [user1Data._id.toString(), user2Data._id.toString()]
+                });
+
+                await newChat.save();
+
                 await User.findByIdAndUpdate(user1Data._id, {
-                    contacts: [...user1Data.contacts, user2Data._id.toString()]
+                    chats: [...user1Data.chats, newChat._id.toString()]
                 });
                 io.sockets.in(user1Data._id.toString()).emit('REFRESH_USER_DATA');
 
                 await User.findByIdAndUpdate(user2Data._id, {
-                    contacts: [...user2Data.contacts, user1Data._id.toString()]
+                    chats: [...user2Data.chats, newChat._id.toString()]
                 });
                 io.sockets.in(user2Data._id.toString()).emit('REFRESH_USER_DATA');
+
+            } catch (err) {
+                throw new Error(err);
+            }
+        });
+
+        socket.on('SELECT_CHAT', chat => {
+            socket.join(chat._id.toString());
+        });
+
+        socket.on('MESSAGE_SEND', async params => {
+            const { fromUser, toUser, msgBody, chatData } = params;
+
+            try {
+                let tempChatData = { ...chatData };
+                const newMessage = new Message({
+                    senderId: fromUser._id.toString(),
+                    dateSent: Date(),
+                    body: msgBody
+                });
+                await newMessage.save();
+
+                tempChatData.messages.push(newMessage._id.toString());
+                await Chat.findByIdAndUpdate(chatData._id, {
+                    ...tempChatData
+                }, { new: true });
+
+                io.sockets.in(chatData._id.toString()).emit('ADD_MESSAGE', newMessage);
 
             } catch (err) {
                 throw new Error(err);
