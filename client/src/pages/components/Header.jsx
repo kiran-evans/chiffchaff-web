@@ -17,11 +17,12 @@ export default function Header() {
   }
 
   return (
-    <AppBar enableColorOnDark position='sticky' sx={{ width: "100vw", display: "flex", flexDirection: "row" }}>
-        <Box sx={{ flex: 1, padding: "5px 10px" }}>
-            <Typography variant="h3">Chiffchaff</Typography>
+    <AppBar enableColorOnDark position='sticky' sx={{height: "5vh", display: "flex", flexDirection: "row", alignItems: "center" }}>
+        <Box sx={{ flex: 1, display: "flex", alignItems: "center", padding: "5px 10px" }}>
+              <Typography variant="h2">Chiffchaff</Typography>
+              <img src="logo-icon.png" width="50" />
         </Box>
-          <Box sx={{ flex: 6, alignSelf: "center", display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+          <Box sx={{ flex: 5, alignSelf: "center", display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
               <Box sx={{display: "flex", mr: "10px"}}>
                   <Avatar sx={{ backgroundColor: user.userColor, mr: "10px" }}>
                       <Typography variant="h5">{user.username[0].toUpperCase()}</Typography>
@@ -29,7 +30,7 @@ export default function Header() {
                   <Typography variant="h5">{user.username}</Typography>
               </Box>
             <IconButton onClick={() => handleLogoutClick()}>
-                <Logout fontSize="large" />
+                  <Logout fontSize="large" sx={{ color: "background.default"}} />
             </IconButton>
         </Box>
     </AppBar>

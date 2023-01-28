@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import axios from "axios";
 import { useContext } from "react";
 import { useEffect, useState } from "react";
@@ -12,9 +12,11 @@ export default function ChatMessages(props) {
     const { user } = useContext(AuthContext);
 
     const [messages, setMessages] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const getMessages = async () => {
         if (!messageIds) return;
+        setIsLoading(true);
         try {
             let tempMessages = [];
             for (const messageId of messageIds) {
@@ -22,6 +24,7 @@ export default function ChatMessages(props) {
                 tempMessages.push(res.data);
             }
             setMessages([...tempMessages]);
+            setIsLoading(false);
         } catch (err) {
             throw new Error(err.response.data);
         }
@@ -30,6 +33,15 @@ export default function ChatMessages(props) {
     useEffect(() => {
         getMessages();
     }, []);
+
+    useEffect(() => {
+        setMessages(null);
+        getMessages();
+    }, [messageIds]);
+
+    useEffect(() => {
+        document.getElementById("chatEnd").scrollIntoView();
+    }, [messages]);
 
     useEffect(() => {
         socket.on('ADD_MESSAGE', message => {
@@ -42,10 +54,11 @@ export default function ChatMessages(props) {
     }, []);
 
     return (
-        <Box sx={{flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", margin: "20px 20px 50px 20px"}}>
+        <Box sx={{height: "100%", overflowY: "scroll", flex: 1, display: "flex", flexDirection: "column", padding: "20px 20px 0px 20px"}}>
             {messages && messages.map(message => (
                 <Box key={message._id} sx={{
                     bgcolor: message.senderId === user._id.toString() ? 'background.paper' : 'primary.main',
+                    color: message.senderId === user._id.toString() ? 'text.primary' : 'background.default',
                     alignSelf: message.senderId === user._id.toString() ? 'flex-end' : 'flex-start',
                     padding: "10px 15px",
                     borderRadius: "15px",
@@ -62,6 +75,8 @@ export default function ChatMessages(props) {
                     </Box>
                 </Box>
             ))}
+            <div id="chatEnd" style={{ paddingBottom: "50px" }} />
+            {isLoading && <Typography variant="body1"><CircularProgress size={25} />&nbsp;Loading messages...</Typography>}
         </Box>        
     )
 }

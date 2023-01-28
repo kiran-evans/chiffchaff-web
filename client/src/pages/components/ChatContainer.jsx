@@ -35,11 +35,20 @@ export default function ChatContainer(props) {
         }
     }, []);
 
+    useEffect(() => {
+        if (user._id.toString() === chat.participants[0]) {
+            getContactData(chat.participants[1]);
+        } else {
+            getContactData(chat.participants[0]);
+        }
+    }, [chat]);
+
     const handleTyping = e => {
         setTextContent(e.target.value)
     }
 
     const handleMessageSend = e => {
+        if (!textContent) return;
         setIsLoading('MESSAGE');
         e.preventDefault();
         socket.emit('MESSAGE_SEND', { fromUser: user, toUser: contact, msgBody: textContent, chatData: chat });
@@ -49,20 +58,20 @@ export default function ChatContainer(props) {
 
     return (
         <Box sx={{flex: 1, display: "flex", flexDirection: "column"}}>
-            <Box sx={{ flex: 2, display: "flex", alignItems: "center", padding: "20px 40px", backgroundColor: "background.paper" }}>
+            <Box sx={{ height: "7%", display: "flex", alignItems: "center", padding: "20px 40px", backgroundColor: "background.paper" }}>
                 {contact && <>
-                    <Avatar sx={{backgroundColor: contact.userColor, height: 60, width: 60, fontSize: 40, borderWidth: "3px", mr: "10px"}}>{contact.username[0].toUpperCase()}</Avatar>
-                    <Typography variant="h3">{contact.username}</Typography>
+                    <Avatar sx={{backgroundColor: contact.userColor, height: 50, width: 50, fontSize: 30, borderWidth: "3px", mr: "10px"}}>{contact.username[0].toUpperCase()}</Avatar>
+                    <Typography variant="h4">{contact.username}</Typography>
                 </>}
                 {isLoading === 'CONTACT' && <Typography variant="body1"><CircularProgress size={20} />&nbsp;Loading...</Typography>}
             </Box>
             
-            <Box sx={{ flex: 30, display: "flex" }}>
+            <Box sx={{ height: "88%", display: "flex" }}>
                 <ChatMessages socket={socket} messageIds={chat.messages} />
             </Box>
             
-            <form onSubmit={e => handleMessageSend(e)}>
-                <Input sx={{ flex: 1, display: "flex", padding: "10px 20px 10px 20px", alignItems: "center", backgroundColor: "background.paper", fontSize: 20 }}
+            <form onSubmit={e => handleMessageSend(e)} style={{height: "5%"}}>
+                <Input sx={{ height: "100%", display: "flex", padding: "10px 20px 10px 20px", alignItems: "center", backgroundColor: "background.paper", fontSize: 20 }}
                     type="text"
                     variant="outlined"
                     placeholder='Type here'
@@ -73,7 +82,7 @@ export default function ChatContainer(props) {
                             {(isLoading && isLoading === 'MESSAGE') ?
                                 <Typography variant="body1"><CircularProgress size={20} />&nbsp;Sending...</Typography>
                                 :
-                                <IconButton>
+                                <IconButton onClick={e => handleMessageSend(e)}>
                                     <Send color="primary" fontSize='large' />
                                 </IconButton>
                             }
