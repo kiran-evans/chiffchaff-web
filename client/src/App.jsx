@@ -4,7 +4,7 @@ import themeOptions from './themeOptions';
 import Splash from './pages/Splash';
 import Dashboard from './pages/Dashboard';
 import Header from './pages/components/Header';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { AuthContext } from './context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { useRef } from 'react';
@@ -20,12 +20,24 @@ function App() {
     const persistedSocket = useRef(io(import.meta.env.ENV_SERVER_URL));
     const socket = persistedSocket.current;
 
+    const [isConnected, setIsConnected] = useState(false);
+
     useEffect(() => {
+        socket.on('connect', () => {
+            setIsConnected(true);
+        });
+
+        socket.on('disconnect', () => {
+            setIsConnected(false);
+        });
+
         socket.on('REFRESH_USER_DATA', () => {
             refreshUserData(user, dispatch);
         });
 
         return () => {
+            socket.off('connect');
+            socket.off('disconnect');
             socket.off('REFRESH_USER_DATA');
         }
     }, []);
@@ -34,11 +46,11 @@ function App() {
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <BrowserRouter>
-            <Box sx={{ height: "100vh", width: "100vw", display: "flex", flexDirection: "column" }}>
+            <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
                 {user && <Header />}
-                <Box sx={{flex: 1, display: "flex", flexDirection: "column"}}>
+                <Box sx={{height: user ? "95vh" : "100vh", display: "flex", flexDirection: "column"}}>
                 <Routes>
-                    <Route exact path="/" element={user ? <Dashboard socket={socket} /> : <Navigate to="/login" />} />
+                    <Route exact path="/" element={user ? <Dashboard socket={socket} isConnected={isConnected} /> : <Navigate to="/login" />} />
                     <Route exact path="/login" element={user ? <Navigate to="/" /> : <Splash />} />
                 </Routes>
                 </Box>

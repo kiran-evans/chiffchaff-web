@@ -47,16 +47,17 @@ export default function Splash() {
 
   return (
       <Box sx={{ flex: 1, display: "flex", alignItems: "center"}}>
-          <Box sx={{flex: 1, height: "100%", backgroundColor: "primary.main", display: "flex", justifyContent: "center", alignItems: "center"}}>
-              <Typography variant="h1">Chiffchaff</Typography>
+          <Box sx={{ flex: 1, height: "100%", backgroundColor: "primary.main", display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <Typography variant="h1" color="background.default">Chiffchaff</Typography>
+              <img src="logo-icon.png" width="140" />
           </Box>
           <Box sx={{ flex: 1, display: "flex", alignItems: "center", flexDirection: "column" }}>
               {hasAccount ? 
                   <>
-                <Typography variant="h2">Login</Typography>
+                <Typography variant="h3">Login</Typography>
                 <form onSubmit={e => handleLoginSubmit(e)}>
                     <Box sx={{display: "flex", flexDirection: "column"}}>
-                            <FormControl sx={{marginTop: "10px"}}>
+                            <FormControl sx={{marginTop: "15px"}}>
                                 <InputLabel htmlFor='username'>Username</InputLabel>
                                 <Input autoComplete="true" required type="username" id="username" value={userBody.username} onChange={e => setUserBody({...userBody, username: e.target.value})} />
                             </FormControl>
@@ -71,10 +72,10 @@ export default function Splash() {
                   </>
                   :
                   <>
-                <Typography variant="h2">Sign Up</Typography>
+                <Typography variant="h3">Sign Up</Typography>
                 <form onSubmit={e => handleSignUpSubmit(e)}>
                     <Box sx={{display: "flex", flexDirection: "column"}}>
-                            <FormControl>
+                            <FormControl sx={{marginTop: "15px"}}>
                                 <InputLabel htmlFor='email'>Email address</InputLabel>
                                 <Input autoComplete="true" autoFocus required type="email" id="email" value={userBody.email} onChange={e => setUserBody({...userBody, email: e.target.value})} />
                             </FormControl>

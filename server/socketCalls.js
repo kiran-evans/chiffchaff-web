@@ -55,8 +55,10 @@ module.exports = io => {
             }
         });
 
-        socket.on('SELECT_CHAT', chat => {
-            socket.join(chat._id.toString());
+        socket.on('SELECT_CHAT', params => {
+            const { leavingChat, joiningChat } = params;
+            if (leavingChat) socket.leave(leavingChat._id.toString());
+            socket.join(joiningChat._id.toString());
         });
 
         socket.on('MESSAGE_SEND', async params => {

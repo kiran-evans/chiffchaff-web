@@ -1,16 +1,14 @@
 import { Box } from '@mui/system'
-
 import PropTypes from 'prop-types';
-import { Avatar, IconButton, Tooltip, Typography } from '@mui/material';
+import { Avatar, Typography } from '@mui/material';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useState } from 'react';
 import { useEffect } from 'react';
-import { PersonAdd, PersonAddAlt } from '@mui/icons-material';
 import axios from 'axios';
 
 export default function ChatListItem(props) {
-    const { data, socket } = props;
+    const { data, selectedChat } = props;
 
     const { user } = useContext(AuthContext);
     const [contact, setContact] = useState(null);
@@ -29,7 +27,17 @@ export default function ChatListItem(props) {
     }, []);
 
     return (
-        <Box sx={{display: "flex", alignItems: "center", padding: "5px 15px", backgroundColor: "background.card", borderRadius: "10px", marginBottom: "5px" }}>
+        <Box sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: "5px 15px",
+            border: "1px solid",
+            borderColor: data._id.toString() === selectedChat._id.toString() ? "primary.dark" : "primary.light",
+            bgcolor: data._id.toString() === selectedChat._id.toString() ? "primary.main" : "background.card",
+            color: data._id.toString() === selectedChat._id.toString() ? "primary.dark" : "text.main",
+            borderRadius: "10px",
+            marginBottom: "5px"
+        }}>
             {contact &&
             <>
                 <Avatar sx={{ backgroundColor: contact.userColor, mr: "10px" }}>
@@ -44,5 +52,5 @@ export default function ChatListItem(props) {
 
 ChatListItem.propTypes = {
     data: PropTypes.object.isRequired,
-    socket: PropTypes.object.isRequired
+    selectedChat: PropTypes.object
 }

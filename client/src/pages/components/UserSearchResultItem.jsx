@@ -7,26 +7,36 @@ import { AuthContext } from '../../context/AuthContext';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { PersonAdd, PersonAddAlt } from '@mui/icons-material';
+import axios from 'axios';
 
 export default function UserSearchResultItem(props) {
     const { data, socket } = props;
 
     const { user } = useContext(AuthContext);
 
-    const [isExistingContact, setIsExistingContact] = useState(false);
+    const [isExistingContact, setIsExistingContact] = useState(true);
     const [hasSent, setHasSent] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if (!user.contacts) return;
-        for (let i = 0; i < user.contacts.length; i++) {
-            if (user.contacts[i] === data._id) {
-                setIsExistingContact(true);
-                return;
-            }
-        }
-    }, []);
+        const getChatData = async () => {
+            if (user.chats.length === 0) return setIsExistingContact(false);;
 
-    const [isLoading, setIsLoading] = useState(false);
+            for (let i = 0; i < user.chats.length; i++) {
+                try {
+                    const res = await axios.get(`${import.meta.env.ENV_SERVER_URL}/chat?id=${user.chats[i]}`);
+                    if (res.data.participants.includes(data._id)) {
+                        setIsExistingContact(true);
+                        return;
+                    }
+                } catch (err) {
+                    throw new Error(err.response.data);
+                }
+            }
+            setIsExistingContact(false);
+        }
+        getChatData();
+    }, []);
 
     const handleAddClick = () => {
         if (isLoading || hasSent) return;
@@ -42,13 +52,13 @@ export default function UserSearchResultItem(props) {
             <Avatar sx={{ backgroundColor: data.userColor, mr: "10px" }}>
                 <Typography variant="h5">{data.username[0].toUpperCase()}</Typography>
             </Avatar>
-                <Typography variant="h5" sx={{ mr: "10px" }}>{data.username}</Typography>
-                
-                {!isExistingContact &&
-                    <Tooltip title={hasSent ? `Request sent` : `Send request`} arrow>
+            <Typography variant="h5" sx={{ mr: "10px" }}>{data.username}</Typography>
+            
+            {!isExistingContact &&
+                <Tooltip title={hasSent ? `Request sent` : `Send request`} arrow>
                     <IconButton onClick={() => handleAddClick()}>{hasSent ? <PersonAddAlt /> : <PersonAdd />}</IconButton>
-                    </Tooltip>
-                }
+                </Tooltip>
+            }
         </Box>
     )
 }
