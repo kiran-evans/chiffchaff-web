@@ -6,6 +6,17 @@
   "author": "kiran-evans <thekiranevans@gmail.com>",
   "license": "AGPL-3.0",
   "dependencies": {
-    "yarn": "^1.22.19"
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "http": "^0.0.1-security",
+    "mongoose": "^6.8.4",
+    "nodemon": "^2.0.20",
+    "socket.io": "^4.5.4"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   }
 }
