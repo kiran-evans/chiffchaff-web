@@ -40,7 +40,7 @@ function App() {
             socket.off('disconnect');
             socket.off('REFRESH_USER_DATA');
         }
-    }, []);
+    }, [user]);
 
     return (
         <ThemeProvider theme={theme}>

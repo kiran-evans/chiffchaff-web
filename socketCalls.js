@@ -43,10 +43,11 @@ module.exports = io => {
 
                 await newChat.save();
 
-                const foundRecipient = await User.findById(recipientData._id.toString());
+                let tempChatRequests = [...recipientData.chatRequests];
+                tempChatRequests.splice(recipientData.chatRequests.indexOf(senderData._id.toString()), 1);
                 await User.findByIdAndUpdate(recipientData._id, {
                     chats: [...recipientData.chats, newChat._id.toString()],
-                    chatRequests: [...foundRecipient._doc.chatRequests.splice(foundRecipient._doc.chatRequests.indexOf(senderData._id.toString()), 1)]
+                    chatRequests: [...tempChatRequests]
                 });
                 io.sockets.in(recipientData._id.toString()).emit('REFRESH_USER_DATA');
 
