@@ -1,5 +1,4 @@
-import { Box, CircularProgress, Typography } from "@mui/material";
-import axios from "axios";
+import { Box, Typography } from "@mui/material";
 import { useContext } from "react";
 import { useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
@@ -7,45 +6,20 @@ import { AuthContext } from "../../context/AuthContext";
 
 export default function ChatMessages(props) {
 
-    const { socket, messageIds } = props;
+    const { socket, messages } = props;
 
     const { user } = useContext(AuthContext);
 
-    const [messages, setMessages] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-
-    const getMessages = async () => {
-        if (!messageIds) return;
-        setIsLoading(true);
-        try {
-            let tempMessages = [];
-            for (const messageId of messageIds) {
-                const res = await axios.get(`${import.meta.env.ENV_SERVER_URL}/message?id=${messageId}`);
-                tempMessages.push(res.data);
-            }
-            setMessages([...tempMessages]);
-            setIsLoading(false);
-        } catch (err) {
-            throw new Error(err.response.data);
-        }
-    }
-
-    useEffect(() => {
-        getMessages();
-    }, []);
-
-    useEffect(() => {
-        setMessages(null);
-        getMessages();
-    }, [messageIds]);
+    const [displayMessages, setDisplayMessages] = useState([...messages]);
 
     useEffect(() => {
         document.getElementById("chatEnd").scrollIntoView();
+        setDisplayMessages([...messages])
     }, [messages]);
 
     useEffect(() => {
         socket.on('ADD_MESSAGE', message => {
-            setMessages(messages => [...messages, message]);
+            setDisplayMessages(displayMessages => [...displayMessages, message]);
         });
 
         return () => {
@@ -55,7 +29,7 @@ export default function ChatMessages(props) {
 
     return (
         <Box sx={{height: "100%", overflowY: "scroll", flex: 1, display: "flex", flexDirection: "column", padding: "20px 20px 0px 20px"}}>
-            {messages && messages.map(message => (
+            {displayMessages.map(message => (
                 <Box key={message._id} sx={{
                     bgcolor: message.senderId === user._id.toString() ? 'background.paper' : 'primary.main',
                     color: message.senderId === user._id.toString() ? 'text.primary' : 'background.default',
@@ -76,7 +50,6 @@ export default function ChatMessages(props) {
                 </Box>
             ))}
             <div id="chatEnd" style={{ paddingBottom: "50px" }} />
-            {isLoading && <Typography variant="body1"><CircularProgress size={25} />&nbsp;Loading messages...</Typography>}
         </Box>        
     )
 }
