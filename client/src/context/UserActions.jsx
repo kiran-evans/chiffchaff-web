@@ -9,7 +9,7 @@ export const loginCall = async (credentials, dispatch) => {
         return localStorage.setItem('loggedInUser', JSON.stringify(res.data));
     } catch (err) {
         dispatch({ type: 'LOGIN_FAILURE', payload: err });
-        throw new Error(err.response.data);
+        throw new Error(err);
     }
 }
 
@@ -21,7 +21,7 @@ export const logoutCall = async (user, dispatch) => {
         return localStorage.clear();
     } catch (err) {
         dispatch({ type: 'LOGOUT_FAILURE', payload: err });
-        throw new Error(err.response.data);
+        throw new Error(err);
     }
 }
 
@@ -34,6 +34,6 @@ export const refreshUserData = async (user, dispatch) => {
         return localStorage.setItem('loggedInUser', JSON.stringify(res.data));
     } catch (err) {
         dispatch({ type: 'LOGIN_FAILURE', payload: err });
-        throw new Error(err.response.data);
+        throw new Error(err);
     }
 }

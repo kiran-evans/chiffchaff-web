@@ -5,7 +5,7 @@ import axios from 'axios'
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import PropTypes from 'prop-types';
-import ContactRequest from './ContactRequest';
+import ChatRequest from './ChatRequest';
 import ChatListItem from './ChatListItem';
 import UserSearchResultItem from './UserSearchResultItem';
 
@@ -15,25 +15,25 @@ export default function ContactsBar(props) {
     const [foundUsers, setFoundUsers] = useState(null);
     const [isLoading, setIsLoading] = useState(null);
     const [chats, setChats] = useState([]);
-    const [contactRequests, setContactRequests] = useState([]);
+    const [chatRequests, setChatRequests] = useState([]);
     
     const { user } = useContext(AuthContext);
 
     const { socket, selectedChat, setSelectedChat } = props;
 
     useEffect(() => {
-        socket.on('CONTACT_REQUEST', contactData => {
-            setContactRequests([...contactRequests, contactData]);
+        socket.on('CHAT_REQUEST', contactData => {
+            setChatRequests([...chatRequests, contactData]);
         });
 
         return () => {
-            socket.off('CONTACT_REQUEST');
+            socket.off('CHAT_REQUEST');
         }
     }, []);
 
     useEffect(() => {
         const getChats = async () => {
-            if (user.chats.length === 0) return;
+            if (!user.chats.length) return;
             setIsLoading('CHATS');
             let tempChats = [];
             for await (const chatId of user.chats) {
@@ -53,6 +53,23 @@ export default function ContactsBar(props) {
             setIsLoading(null);
         }
         getChats();
+
+        const getChatRequests = async () => {
+            if (!user.chatRequests.length) return setChatRequests([]);
+            setIsLoading('CHAT_REQUESTS');
+            let tempChatRequests = [];
+            for await (const contactRequestId of user.chatRequests) {
+                try {
+                    const foundUser = await axios.get(`${import.meta.env.ENV_SERVER_URL}/user?id=${contactRequestId}`);
+                    tempChatRequests.push(foundUser.data);
+                } catch (err) {
+                    throw new Error(err.response.data);
+                }
+            }
+            setChatRequests([...tempChatRequests]);
+            setIsLoading(null);
+        }
+        getChatRequests();
     }, []);
 
     useEffect(() => {
@@ -103,8 +120,8 @@ export default function ContactsBar(props) {
                 <Typography variant="h6"><EmojiPeople />&nbsp;Contact Requests</Typography>
             </Box>
             <Box sx={{ alignSelf: "flex-start", mt: "20px", mb: "40px" }}>
-                {contactRequests.map(contact => (
-                    <ContactRequest key={contact._id} data={contact} socket={props.socket} />
+                {chatRequests.map(contact => (
+                    <ChatRequest key={contact._id} data={contact} socket={props.socket} />
                 ))}
             </Box>
 

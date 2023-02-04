@@ -22,6 +22,10 @@ const userModel = mongoose.Schema({
         type: Array,
         default: []
     },
+    chatRequests: {
+        type: Array,
+        default: []
+    },
     userColor: {
         type: String,
         default: function () {
