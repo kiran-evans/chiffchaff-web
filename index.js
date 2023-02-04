@@ -46,5 +46,3 @@ const userRoutes = require('./routes/userRoutes');
 app.use('/user', userRoutes);
 const chatRoutes = require('./routes/chatRoutes');
 app.use('/chat', chatRoutes);
-const messageRoutes = require('./routes/messageRoutes');
-app.use('/message', messageRoutes);

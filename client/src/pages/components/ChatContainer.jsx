@@ -15,6 +15,7 @@ export default function ChatContainer(props) {
     const [textContent, setTextContent] = useState("");
     const [contact, setContact] = useState(null);
     const [isLoading, setIsLoading] = useState(null);
+    const [messages, setMessages] = useState([...chat.messages]);
 
     const getContactData = async contactId => {
         try {
@@ -27,12 +28,25 @@ export default function ChatContainer(props) {
         }
     }
 
+    const getMessages = async () => {
+        if (!chat.messages.length) return;
+        try {
+            setIsLoading('MESSAGES');
+            const res = await axios.get(`${import.meta.env.ENV_SERVER_URL}/chat?id=${chat._id.toString()}`);
+            setMessages([...res.data.messages]);
+            setIsLoading(null);
+        } catch (err) {
+            throw new Error(err.response.data);
+        }
+    }
+
     useEffect(() => {
         if (user._id.toString() === chat.participants[0]) {
             getContactData(chat.participants[1]);
         } else {
             getContactData(chat.participants[0]);
         }
+        getMessages();
     }, []);
 
     useEffect(() => {
@@ -41,6 +55,7 @@ export default function ChatContainer(props) {
         } else {
             getContactData(chat.participants[0]);
         }
+        getMessages();
     }, [chat]);
 
     const handleTyping = e => {
@@ -51,7 +66,7 @@ export default function ChatContainer(props) {
         if (!textContent) return;
         setIsLoading('MESSAGE');
         e.preventDefault();
-        socket.emit('MESSAGE_SEND', { fromUser: user, toUser: contact, msgBody: textContent, chatData: chat });
+        socket.emit('MESSAGE_SEND', { fromUser: user, msgBody: textContent, chatData: chat });
         setTextContent("");
         setIsLoading(null);
     }
@@ -67,8 +82,9 @@ export default function ChatContainer(props) {
             </Box>
             
             <Box sx={{ height: "88%", display: "flex" }}>
-                <ChatMessages socket={socket} messageIds={chat.messages} />
+                <ChatMessages socket={socket} messages={messages} />
             </Box>
+            {isLoading === 'MESSAGES' && <Typography variant="body1"><CircularProgress size={25} />&nbsp;Loading messages...</Typography>}
             
             <form onSubmit={e => handleMessageSend(e)} style={{height: "5%"}}>
                 <Input sx={{ height: "100%", display: "flex", padding: "10px 20px 10px 20px", alignItems: "center", backgroundColor: "background.paper", fontSize: 20 }}

@@ -68,23 +68,22 @@ module.exports = io => {
         });
 
         socket.on('MESSAGE_SEND', async params => {
-            const { fromUser, toUser, msgBody, chatData } = params;
+            const { fromUser, msgBody, chatData } = params;
 
             try {
-                let tempChatData = { ...chatData };
                 const newMessage = new Message({
                     senderId: fromUser._id.toString(),
                     dateSent: Date(),
                     body: msgBody
                 });
-                await newMessage.save();
-
-                tempChatData.messages.push(newMessage._id.toString());
-                await Chat.findByIdAndUpdate(chatData._id, {
-                    ...tempChatData
-                }, { new: true });
 
                 io.sockets.in(chatData._id.toString()).emit('ADD_MESSAGE', newMessage);
+
+                const foundChat = await Chat.findById(chatData._id.toString());
+
+                await Chat.findByIdAndUpdate(chatData._id, {
+                    messages: [...foundChat._doc.messages, newMessage]
+                });
 
             } catch (err) {
                 throw new Error(err);
