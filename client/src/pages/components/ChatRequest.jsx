@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 
-export default function ContactRequest(props) {
+export default function ChatRequest(props) {
 
     const { user } = useContext(AuthContext);
     const { data, socket } = props;
@@ -17,7 +17,7 @@ export default function ContactRequest(props) {
             <Typography variant="h5" sx={{ mr: "10px" }}>{data.username}</Typography>
 
             <Tooltip title="Accept" arrow>
-                <IconButton onClick={() => socket.emit('CONTACT_ACCEPT', {user1Data: user, user2Data: data})}>
+                <IconButton onClick={() => socket.emit('CHAT_ACCEPT', { recipientData: user, senderData: data })}>
                     <CheckCircle color="success" />
                 </IconButton>
             </Tooltip>
@@ -31,7 +31,7 @@ export default function ContactRequest(props) {
     )
 }
 
-ContactRequest.propTypes = {
+ChatRequest.propTypes = {
     data: PropTypes.object.isRequired,
     socket: PropTypes.object.isRequired
 }

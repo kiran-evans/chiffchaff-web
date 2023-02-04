@@ -20,7 +20,7 @@ export default function UserSearchResultItem(props) {
 
     useEffect(() => {
         const getChatData = async () => {
-            if (user.chats.length === 0) return setIsExistingContact(false);;
+            if (!user.chats.length) return setIsExistingContact(false);;
 
             for (let i = 0; i < user.chats.length; i++) {
                 try {
@@ -41,7 +41,7 @@ export default function UserSearchResultItem(props) {
     const handleAddClick = () => {
         if (isLoading || hasSent) return;
         setIsLoading(true);
-        socket.emit('CONTACT_REQUEST', { userData: user, contactData: data });
+        socket.emit('CHAT_REQUEST', { userData: user, contactData: data });
         setHasSent(true);
         setIsLoading(false);
         return;

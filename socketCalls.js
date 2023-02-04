@@ -17,11 +17,14 @@ module.exports = io => {
             socket.emit('ALERT', { severity: params.severity, text: params.text });
         });
 
-        socket.on('CONTACT_REQUEST', async params => {
+        socket.on('CHAT_REQUEST', async params => {
             const { userData, contactData } = params;
 
             try {
-                io.sockets.in(contactData._id.toString()).emit('CONTACT_REQUEST', userData);
+                await User.findByIdAndUpdate(contactData._id.toString(), {
+                    chatRequests: [...contactData.chatRequests, userData._id.toString()]
+                });
+                io.sockets.in(contactData._id.toString()).emit('CHAT_REQUEST', userData);
                 io.sockets.in(contactData._id.toString()).emit('ALERT', { severity: 'info', text: `${userData.username} sent you a contact request.` });
                 
                 io.sockets.in(userData._id.toString()).emit('ALERT', { severity: 'success', text: `Request sent.` });
@@ -30,25 +33,27 @@ module.exports = io => {
             }
         });
 
-        socket.on('CONTACT_ACCEPT', async params => {
-            const { user1Data, user2Data } = params;
+        socket.on('CHAT_ACCEPT', async params => {
+            const { recipientData, senderData } = params;
 
             try {
                 const newChat = new Chat({
-                    participants: [user1Data._id.toString(), user2Data._id.toString()]
+                    participants: [recipientData._id.toString(), senderData._id.toString()]
                 });
 
                 await newChat.save();
 
-                await User.findByIdAndUpdate(user1Data._id, {
-                    chats: [...user1Data.chats, newChat._id.toString()]
+                const foundRecipient = await User.findById(recipientData._id.toString());
+                await User.findByIdAndUpdate(recipientData._id, {
+                    chats: [...recipientData.chats, newChat._id.toString()],
+                    chatRequests: [...foundRecipient._doc.chatRequests.splice(foundRecipient._doc.chatRequests.indexOf(senderData._id.toString()), 1)]
                 });
-                io.sockets.in(user1Data._id.toString()).emit('REFRESH_USER_DATA');
+                io.sockets.in(recipientData._id.toString()).emit('REFRESH_USER_DATA');
 
-                await User.findByIdAndUpdate(user2Data._id, {
-                    chats: [...user2Data.chats, newChat._id.toString()]
+                await User.findByIdAndUpdate(senderData._id, {
+                    chats: [...senderData.chats, newChat._id.toString()]
                 });
-                io.sockets.in(user2Data._id.toString()).emit('REFRESH_USER_DATA');
+                io.sockets.in(senderData._id.toString()).emit('REFRESH_USER_DATA');
 
             } catch (err) {
                 throw new Error(err);
