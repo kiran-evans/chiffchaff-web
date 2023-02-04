@@ -55,7 +55,7 @@ export default function ContactsBar(props) {
         getChats();
 
         const getChatRequests = async () => {
-            if (!user.chatRequests.length) return;
+            if (!user.chatRequests.length) return setChatRequests([]);
             setIsLoading('CHAT_REQUESTS');
             let tempChatRequests = [];
             for await (const contactRequestId of user.chatRequests) {
