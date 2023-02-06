@@ -11,6 +11,7 @@ import { useRef } from 'react';
 import { io } from 'socket.io-client';
 import { useEffect } from 'react';
 import { refreshUserData } from './context/UserActions';
+import Account from './pages/Account';
 
 function App() {
 
@@ -52,6 +53,7 @@ function App() {
                 <Routes>
                     <Route exact path="/" element={user ? <Dashboard socket={socket} isConnected={isConnected} /> : <Navigate to="/login" />} />
                     <Route exact path="/login" element={user ? <Navigate to="/" /> : <Splash />} />
+                    <Route exact path="/account" element={user ? <Account /> : <Navigate to="/" />} />
                 </Routes>
                 </Box>
             </Box>

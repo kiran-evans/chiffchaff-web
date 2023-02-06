@@ -48,8 +48,12 @@ export default {
         MuiLink: {
             styleOverrides: {
                 root: {
-                    cursor: "pointer"
-                }
+                    cursor: "pointer",
+                    color: "inherit",
+                    "&:hover": {
+                        textDecoration: "none"
+                    }
+                },
             }
         },
         MuiTypography: {

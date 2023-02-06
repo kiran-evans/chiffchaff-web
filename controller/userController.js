@@ -63,11 +63,24 @@ const getUser = async (req, res) => {
 const updateUser = async (req, res) => {
     try {
         const foundUser = await User.findById(req.query.id);
-
         if (!foundUser) return res.status(404).json(`No user found.`);
+        
+        const passwordIsValid = await bcrypt.compare(req.body.password, foundUser.password);
+        if (!passwordIsValid) return res.status(400).json(`Invalid password.`);
+
+        let tempBody = { ...req.body };
+
+        if (tempBody.newPassword) {
+            const salt = await bcrypt.genSalt(parseInt(process.env.SALT_FACTOR));
+            tempBody.password = await bcrypt.hash(tempBody.newPassword, salt);
+        } else {
+            tempBody.password = foundUser.password; // keep existing encrypted pw in db
+        }
+
+        const { newPassword, ...updatedBody } = tempBody; // exclude newPassword field from the submission to the db
 
         const updatedUser = await User.findByIdAndUpdate(req.query.id, {
-            ...req.body
+            ...updatedBody
         }, { new: true });
 
         const { password, ...userBody } = updatedUser._doc;

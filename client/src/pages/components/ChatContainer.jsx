@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
-import { Avatar, Box, CircularProgress, IconButton, Input, InputAdornment, Typography } from '@mui/material';
-import { Send } from '@mui/icons-material';
+import { Avatar, Box, CircularProgress, IconButton, Input, InputAdornment, Tooltip, Typography } from '@mui/material';
+import { Block, PersonRemove, Report, Send, VoiceOverOff } from '@mui/icons-material';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useEffect } from 'react';
@@ -73,11 +73,41 @@ export default function ChatContainer(props) {
 
     return (
         <Box sx={{flex: 1, display: "flex", flexDirection: "column"}}>
-            <Box sx={{ height: "7%", display: "flex", alignItems: "center", padding: "20px 40px", backgroundColor: "background.paper" }}>
-                {contact && <>
-                    <Avatar sx={{backgroundColor: contact.userColor, height: 50, width: 50, fontSize: 30, borderWidth: "3px", mr: "10px"}}>{contact.username[0].toUpperCase()}</Avatar>
-                    <Typography variant="h4">{contact.username}</Typography>
-                </>}
+            <Box sx={{ height: "7%", display: "flex", padding: "20px 40px", backgroundColor: "background.paper" }}>
+                {contact &&
+                    <Box sx={{flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between"}}>
+                        <Box sx={{display: "flex"}}>
+                            <Avatar sx={{backgroundColor: contact.userColor, height: 50, width: 50, fontSize: 30, borderWidth: "3px", mr: "10px"}}>{contact.username[0].toUpperCase()}</Avatar>
+                            <Typography variant="h4">{contact.username}</Typography>
+                        </Box>
+
+                        <Box sx={{ display: "flex", justifyContent: "center" }}>
+                            <Tooltip title="Remove contact">
+                                <IconButton>
+                                    <PersonRemove sx={{color: "text.primary"}} />
+                                </IconButton>
+                            </Tooltip>
+
+                            <Tooltip title="Mute contact">
+                                <IconButton>
+                                    <VoiceOverOff sx={{color: "text.primary"}} />
+                                </IconButton>
+                            </Tooltip>
+
+                            <Tooltip title="Block user">
+                                <IconButton>
+                                    <Block sx={{color: "text.primary"}} />
+                                </IconButton>
+                            </Tooltip>
+
+                            <Tooltip title="Report user">
+                                <IconButton>
+                                    <Report sx={{color: "text.primary"}} />
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
+                    </Box>
+                }
                 {isLoading === 'CONTACT' && <Typography variant="body1"><CircularProgress size={20} />&nbsp;Loading...</Typography>}
             </Box>
             
