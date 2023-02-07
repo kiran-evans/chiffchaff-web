@@ -21,6 +21,16 @@ module.exports = io => {
             const { userData, contactData } = params;
 
             try {
+                const foundUser = await User.findById(userData._id.toString());
+                const foundContact = await User.findById(contactData._id.toString());
+
+                if (foundUser.isArchived) {
+                    return io.sockets.in(userData._id.toString()).emit('ALERT', { severity: 'error', text: `You cannot send contact requests because your account is archived.` });
+                }
+                if (foundContact.isArchived) {
+                    return io.sockets.in(userData._id.toString()).emit('ALERT', { severity: 'error', text: `${contactData.username} cannot receive contact requests because their account is archived.` });
+                }
+
                 await User.findByIdAndUpdate(contactData._id.toString(), {
                     chatRequests: [...contactData.chatRequests, userData._id.toString()]
                 });
@@ -68,11 +78,21 @@ module.exports = io => {
         });
 
         socket.on('MESSAGE_SEND', async params => {
-            const { fromUser, msgBody, chatData } = params;
+            const { userData, contactData, msgBody, chatData } = params;
 
             try {
+                const foundUser = await User.findById(userData._id.toString());
+                const foundContact = await User.findById(contactData._id.toString());
+
+                if (foundUser.isArchived) {
+                    return io.sockets.in(userData._id.toString()).emit('ALERT', { severity: 'error', text: `You cannot send messages because your account is archived.` });
+                }
+                if (foundContact.isArchived) {
+                    return io.sockets.in(userData._id.toString()).emit('ALERT', { severity: 'error', text: `${contactData.username} cannot receive messages because their account is archived.` });
+                }
+                
                 const newMessage = new Message({
-                    senderId: fromUser._id.toString(),
+                    senderId: userData._id.toString(),
                     dateSent: Date(),
                     body: msgBody
                 });

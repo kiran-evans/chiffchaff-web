@@ -34,6 +34,10 @@ function App() {
             setSnackbar({isOpen: true, severity: "warning", text: "You have been disconnected."})
         });
 
+        socket.on('ALERT', params => {
+            setSnackbar({ isOpen: true, severity: params.severity, text: params.text });
+        });
+
         socket.on('REFRESH_USER_DATA', () => {
             refreshUserData(user, dispatch);
         });
@@ -41,6 +45,7 @@ function App() {
         return () => {
             socket.off('connect');
             socket.off('disconnect');
+            socket.off('ALERT');
             socket.off('REFRESH_USER_DATA');
         }
     }, [user]);

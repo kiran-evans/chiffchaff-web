@@ -4,7 +4,7 @@ import ContactsBar from './components/ContactsBar'
 import ChatContainer from './components/ChatContainer'
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import { Archive, ExpandMore, Help, Public, PublicOff } from '@mui/icons-material';
+import { Archive, ExpandMore, Public, PublicOff } from '@mui/icons-material';
 import { useEffect } from 'react';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
@@ -18,14 +18,6 @@ export default function Dashboard(props) {
 
     useEffect(() => {
         socket.emit('ONLINE_INIT', user);
-
-        socket.on('ALERT', params => {
-            setSnackbar({ isOpen: true, severity: params.severity, text: params.text });
-        });
-
-        return () => {
-            socket.off('ALERT');
-        }
     }, []);
 
     return (
@@ -48,7 +40,7 @@ export default function Dashboard(props) {
             </Box>
             <Box sx={{ flex: 5, display: "flex", height: "95vh" }}>
                 {selectedChat &&
-                    <ChatContainer socket={socket} chat={selectedChat} />
+                    <ChatContainer socket={socket} chat={selectedChat} setSnackbar={setSnackbar} />
                 }
             </Box>
         </Box>

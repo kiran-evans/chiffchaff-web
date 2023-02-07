@@ -10,18 +10,22 @@ import ChatMessages from './ChatMessages';
 export default function ChatContainer(props) {
 
     const { user } = useContext(AuthContext);
-    const { socket, chat } = props;
+    const { socket, chat, setSnackbar } = props;
 
     const [textContent, setTextContent] = useState("");
-    const [contact, setContact] = useState(null);
+    const [contact, setContact] = useState({ username: "Deleted User", isArchived: true, isDeleted: true });
     const [isLoading, setIsLoading] = useState(null);
     const [messages, setMessages] = useState([...chat.messages]);
 
     const getContactData = async contactId => {
         try {
             setIsLoading('CONTACT');
-            const res = await axios.get(`${import.meta.env.ENV_SERVER_URL}/user?id=${contactId}`);
-            setContact(res.data);
+            if (contactId) {
+                const res = await axios.get(`${import.meta.env.ENV_SERVER_URL}/user?id=${contactId}`);
+                setContact(res.data);
+            } else {
+                setContact({ username: "Deleted User", isArchived: true, isDeleted: true });
+            }
             setIsLoading(null);
         } catch (err) {
             throw new Error(err.response.data);
@@ -29,7 +33,6 @@ export default function ChatContainer(props) {
     }
 
     const getMessages = async () => {
-        if (!chat.messages.length) return;
         try {
             setIsLoading('MESSAGES');
             const res = await axios.get(`${import.meta.env.ENV_SERVER_URL}/chat?id=${chat._id.toString()}`);
@@ -41,19 +44,23 @@ export default function ChatContainer(props) {
     }
 
     useEffect(() => {
-        if (user._id.toString() === chat.participants[0]) {
+        if (chat.participants[0] && chat.participants[0] !== user._id.toString()) {
+            getContactData(chat.participants[0]);
+        } else if (chat.participants[1] && chat.participants[1] !== user._id.toString()) {
             getContactData(chat.participants[1]);
         } else {
-            getContactData(chat.participants[0]);
+            getContactData(null);
         }
         getMessages();
     }, []);
 
     useEffect(() => {
-        if (user._id.toString() === chat.participants[0]) {
+        if (chat.participants[0] && chat.participants[0] === user._id.toString()) {
             getContactData(chat.participants[1]);
-        } else {
+        } else if (chat.participants[1] && chat.participants[1] === user._id.toString()) {
             getContactData(chat.participants[0]);
+        } else {
+            getContactData(null);
         }
         getMessages();
     }, [chat]);
@@ -63,10 +70,12 @@ export default function ChatContainer(props) {
     }
 
     const handleMessageSend = e => {
-        if (!textContent) return;
         setIsLoading('MESSAGE');
         e.preventDefault();
-        socket.emit('MESSAGE_SEND', { fromUser: user, msgBody: textContent, chatData: chat });
+
+        if (!textContent) return setIsLoading(null);
+        
+        socket.emit('MESSAGE_SEND', { userData: user, contactData: contact, msgBody: textContent, chatData: chat });
         setTextContent("");
         setIsLoading(null);
     }
@@ -116,25 +125,35 @@ export default function ChatContainer(props) {
             </Box>
             {isLoading === 'MESSAGES' && <Typography variant="body1"><CircularProgress size={25} />&nbsp;Loading messages...</Typography>}
             
-            <form onSubmit={e => handleMessageSend(e)} style={{height: "5%"}}>
-                <Input sx={{ height: "100%", display: "flex", padding: "10px 20px 10px 20px", alignItems: "center", backgroundColor: "background.paper", fontSize: 20 }}
-                    type="text"
-                    variant="outlined"
-                    placeholder='Type here'
-                    value={textContent}
-                    onChange={e => handleTyping(e)}
-                    endAdornment={
-                        <InputAdornment position="end">
-                            {(isLoading && isLoading === 'MESSAGE') ?
-                                <Typography variant="body1"><CircularProgress size={20} />&nbsp;Sending...</Typography>
-                                :
-                                <IconButton onClick={e => handleMessageSend(e)}>
-                                    <Send color="primary" fontSize='large' />
-                                </IconButton>
-                            }
-                    </InputAdornment>
-                } />
-            </form>
+
+            <Box sx={{height: "5%", display: "flex", justifyContent: "center", backgroundColor: "background.paper"}}>
+                {!user.isArchived ? 
+                    !contact.isArchived ?
+                        <form onSubmit={e => handleMessageSend(e)} style={{height: "100%", flex: 1, display: "flex"}}>
+                            <Input sx={{ height: "100%", fontSize: 20, padding: "10px 20px 10px 20px", flex: 1 }}
+                                type="text"
+                                variant="outlined"
+                                placeholder='Type here'
+                                value={textContent}
+                                onChange={e => handleTyping(e)}
+                                endAdornment={
+                                    <InputAdornment position="end">
+                                        {(isLoading && isLoading === 'MESSAGE') ?
+                                            <Typography variant="body1"><CircularProgress size={20} />&nbsp;Sending...</Typography>
+                                            :
+                                            <IconButton onClick={e => handleMessageSend(e)}>
+                                                <Send color="primary" fontSize='large' />
+                                            </IconButton>
+                                        }
+                                </InputAdornment>
+                            } />
+                        </form>
+                        :
+                        <Typography>{contact.isDeleted ? "This user's account has been deleted." : `You cannot send messages to ${contact.username} because their account has been archived.`}</Typography>
+                    :
+                    <Typography>You cannot send messages because your account is archived.</Typography>
+                }
+            </Box>
         </Box>
     )
 }

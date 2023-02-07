@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../model/userModel');
+const Chat = require('../model/chatModel');
 
 const createUser = async (req, res) => {
     try {
@@ -29,7 +30,7 @@ const getUser = async (req, res) => {
             let foundUsersList = [];
 
             for (const user of foundUsers) {
-                if (user._id.toString() === req.query.id) continue;
+                if (user._id.toString() === req.query.id || user.isArchived) continue;
                 const { password, ...userBody } = user._doc;
                 foundUsersList.push(userBody);
             };
@@ -70,11 +71,33 @@ const updateUser = async (req, res) => {
 
         let tempBody = { ...req.body };
 
-        if (tempBody.newPassword) {
+        if (tempBody.newPassword) { // user is changing their pw
             const salt = await bcrypt.genSalt(parseInt(process.env.SALT_FACTOR));
             tempBody.password = await bcrypt.hash(tempBody.newPassword, salt);
-        } else {
+        } else { // user changing something else
             tempBody.password = foundUser.password; // keep existing encrypted pw in db
+
+            if (req.query.reset) {
+                for await (const chatId of foundUser.chats) {
+                    const foundChat = await Chat.findById(chatId);
+                    let tempChat = { ...foundChat._doc };
+
+                    tempChat.participants[tempChat.participants.indexOf(foundUser._id.toString())] = null; // remove user details from chat
+
+                    for await (let message of tempChat.messages) {
+                        if (message.senderId.toString() === foundUser._id.toString()) {
+                            if (req.query.deleteFromOthers === "true") { // delete user's messages for their contact as well
+                                message.body = null;
+                            }
+                            message.senderId = null;
+                        }
+                    }
+
+                    await Chat.findByIdAndUpdate(chatId, { ...tempChat });
+                    tempBody.chats = [];
+                    tempBody.isArchived = false;
+                }
+            }
         }
 
         const { newPassword, ...updatedBody } = tempBody; // exclude newPassword field from the submission to the db
