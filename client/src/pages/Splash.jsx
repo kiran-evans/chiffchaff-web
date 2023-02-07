@@ -6,12 +6,13 @@ import { AuthContext } from '../context/AuthContext';
 import { loginCall } from '../context/UserActions';
 import { useNavigate } from 'react-router-dom';
 
-export default function Splash() {
+export default function Splash(props) {
+
+    const { setSnackbar } = props;
 
   const [hasAccount, setHasAccount] = useState(false);
   const [userBody, setUserBody] = useState({ email: "", username: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({ isOpen: false, message: "", severity: "" });
 
   const { dispatch } = useContext(AuthContext);
   const navigator = useNavigate();
@@ -26,7 +27,7 @@ export default function Splash() {
 
     } catch (err) {
       setIsLoading(false);
-      return setSnackbar({ isOpen: true, message: `Failed to login. ${err}`, severity: 'error' });
+      return setSnackbar({ isOpen: true, text: `Failed to login. ${err}`, severity: 'error' });
     }
   }
 
@@ -41,7 +42,7 @@ export default function Splash() {
 
     } catch (err) {
       setIsLoading(false);
-      return setSnackbar({ isOpen: true, message: `Failed to create account. ${err}`, severity: 'error' });
+      return setSnackbar({ isOpen: true, text: `Failed to create account. ${err}`, severity: 'error' });
     }
   }
 
@@ -94,9 +95,6 @@ export default function Splash() {
                   </>
               }
       </Box>
-      <Snackbar open={snackbar.isOpen} autoHideDuration={5000} onClose={() => setSnackbar({ ...snackbar, isOpen: false })}>
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-      </Snackbar>
     </Box>
   )
 }

@@ -1,11 +1,14 @@
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar, TextField, Tooltip, Typography } from "@mui/material";
+import { Archive, DeleteForever, RestartAlt, Unarchive } from '@mui/icons-material'
 import axios from "axios";
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { refreshUserData } from "../context/UserActions";
 
 
-export default function Account() {
+export default function Account(props) {
+
+    const { setSnackbar } = props;
 
     const { user, dispatch } = useContext(AuthContext);
 
@@ -14,40 +17,87 @@ export default function Account() {
     const [newPw1, setNewPw1] = useState("");
     const [newPw2, setNewPw2] = useState("");
     const [password, setPassword] = useState("");
-    const [dialog, setDialog] = useState({ isOpen: false, action: null });
+    const [dialog, setDialog] = useState({ title: "", isOpen: false, action: null });
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (action) => {
         setIsLoading(true);
 
-        try {
-            let newBody = {};
+        switch (action) {
+            case 'UPDATE_DETAILS':
+                try {
+                    let newBody = {};
 
-            if (newUsername !== user.username) newBody.username = newUsername;
-            if (newEmail !== user.email) newBody.email = newEmail;
-            if (newPw1) newBody.newPassword = newPw1;
-            newBody.password = password;
+                    if (newUsername !== user.username) newBody.username = newUsername;
+                    if (newEmail !== user.email) newBody.email = newEmail;
+                    if (newPw1) newBody.newPassword = newPw1;
+                    newBody.password = password;
 
-            const res = await axios.put(`${import.meta.env.ENV_SERVER_URL}/user?id=${user._id.toString()}`, {
-                ...newBody
-            });
+                    const res = await axios.put(`${import.meta.env.ENV_SERVER_URL}/user?id=${user._id.toString()}`, {
+                        ...newBody
+                    });
 
-            refreshUserData(res.data, dispatch);
-            setIsLoading(false);
-            return;
+                    setIsLoading(false);
+                    setSnackbar({ isOpen: true, severity: "success", text: `Account updated!` });
+                    refreshUserData(res.data, dispatch);
+                    return;
 
-        } catch (err) {
-            throw new Error(err.response.data);
+                } catch (err) {
+                    setIsLoading(false);
+                    setSnackbar({ isOpen: true, severity: "error", text: err.response.data });
+                    return;
+                }
+
+            case 'ARCHIVE_ACCOUNT':
+                try {
+                    const res = await axios.put(`${import.meta.env.ENV_SERVER_URL}/user?id=${user._id.toString()}`, {
+                        password: password,
+                        isArchived: true
+                    });
+
+                    setIsLoading(false);
+                    setSnackbar({ isOpen: true, severity: "success", text: `Account archived!` });
+                    refreshUserData(res.data, dispatch);
+                    return;
+
+                } catch (err) {
+                    setIsLoading(false);
+                    setSnackbar({ isOpen: true, severity: "error", text: err.response.data });
+                    return;
+                }
+
+            case 'UNARCHIVE_ACCOUNT':
+                try {
+                    const res = await axios.put(`${import.meta.env.ENV_SERVER_URL}/user?id=${user._id.toString()}`, {
+                        password: password,
+                        isArchived: false
+                    });
+
+                    setIsLoading(false);
+                    setSnackbar({ isOpen: true, severity: "success", text: `Account unarchived!` });
+                    refreshUserData(res.data, dispatch);
+                    return;
+
+                } catch (err) {
+                    setIsLoading(false);
+                    setSnackbar({ isOpen: true, severity: "error", text: err.response.data });
+                    return;
+                }
+            
+            default:
+                setIsLoading(false);
+                setSnackbar({ isOpen: true, severity: "error", text: `Not a valid action.` });
+                return;
         }
     }
 
     return (
-        <Box sx={{padding: "10px 20px", alignSelf: "center"}}>
+        <Box sx={{padding: "10px 20px", alignSelf: "center", display: "flex", flexDirection: "column"}}>
             <Typography variant="h3">Account</Typography>
 
             <Typography variant="h4" sx={{margin: "15px 0"}}>Update Account Details</Typography>
 
-            <form onSubmit={(e) => {e.preventDefault(); setDialog({...dialog, isOpen: true})}}>
+            <form onSubmit={(e) => {e.preventDefault(); setDialog({isOpen: true, title: "Enter Password", action: 'UPDATE_DETAILS'})}}>
                 <Box sx={{
                     display: "flex",
                     flexDirection: "column",
@@ -63,7 +113,7 @@ export default function Account() {
                 </Box>
             </form>
 
-            <form onSubmit={(e) => {e.preventDefault(); setDialog({...dialog, isOpen: true})}}>
+            <form onSubmit={(e) => {e.preventDefault(); setDialog({isOpen: true, title: "Enter Password", action: 'UPDATE_DETAILS'})}}>
                 <Box sx={{
                     display: "flex",
                     flexDirection: "column",
@@ -86,19 +136,44 @@ export default function Account() {
                 </Box>
             </form>
 
+            <Typography variant="h4" sx={{margin: "15px 0"}}>Manage Your Data</Typography>
+
+            <Tooltip arrow
+                title={user.isArchived
+                    ? `Other users will be able to search for your username.
+                        You will be able to send and receive new messages and contact requests.`
+                    : `Keep your account details, messages and contacts, but you will not be able to send or receive new messages or contact requests.
+                        Other users will not be able to search for your username.`}>
+                <Button
+                    onClick={() => setDialog({ isOpen: true, title: "Enter Password", action: user.isArchived ? 'UNARCHIVE_ACCOUNT' : 'ARCHIVE_ACCOUNT' })}
+                    type="button"
+                    variant="outlined"
+                    color="warning"
+                    sx={{ mb: "10px" }}
+                >{user.isArchived ? <><Unarchive />&nbsp;Unarchive Account</> : <><Archive />&nbsp;Archive Account</>}</Button>
+            </Tooltip>
+            <Tooltip arrow title="Delete all your messages and contacts but keep your account.">
+                <Button type="button" variant="outlined" color="error" sx={{mb: "10px"}}><RestartAlt />&nbsp;Reset Account</Button>
+            </Tooltip>
+            <Tooltip arrow title="Delete your account. You will be able to choose which data is also deleted.">
+                <Button type="button" variant="outlined" color="error" sx={{mb: "10px"}}><DeleteForever />&nbsp;Delete Account</Button>
+            </Tooltip>
+
+
+
             <Dialog open={dialog.isOpen} onClose={() => setDialog({ ...dialog, isOpen: false })}>
-                <DialogTitle>Enter Password</DialogTitle>
+                <DialogTitle>{dialog.title}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         Please enter your existing password.
                     </DialogContentText>
-                    <form onSubmit={(e) => { e.preventDefault();  handleSubmit()}}>
+                    <form onSubmit={(e) => { e.preventDefault();  handleSubmit(dialog.action)}}>
                         <TextField sx={{mt: "10px"}} required label="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
                     </form>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setDialog({...dialog, isOpen: false})} color="error" disabled={isLoading}>Cancel</Button>
-                    <Button onClick={() => handleSubmit()} variant="contained" disabled={isLoading}>{isLoading ? <><CircularProgress size={20} />&nbsp;Confirming...</> : 'Confirm'}</Button>
+                    <Button onClick={() => handleSubmit(dialog.action)} variant="contained" disabled={isLoading}>{isLoading ? <><CircularProgress size={20} />&nbsp;Confirming...</> : 'Confirm'}</Button>
                 </DialogActions>
             </Dialog>
         </Box>

@@ -116,14 +116,17 @@ export default function ContactsBar(props) {
                 )}
             </Box>
                 
-            <Box sx={{display: "flex", justifyContent: "center"}}>
-                <Typography variant="h6"><EmojiPeople />&nbsp;Contact Requests</Typography>
-            </Box>
-            <Box sx={{ alignSelf: "flex-start", mt: "20px", mb: "40px" }}>
-                {chatRequests.map(contact => (
-                    <ChatRequest key={contact._id} data={contact} socket={props.socket} />
-                ))}
-            </Box>
+            {!user.isArchived && <>
+                <Box sx={{display: "flex", justifyContent: "center"}}>
+                    <Typography variant="h6"><EmojiPeople />&nbsp;Contact Requests</Typography>
+                </Box>
+                <Box sx={{ alignSelf: "flex-start", mt: "20px", mb: "40px" }}>
+                    {chatRequests.map(contact => (
+                        <ChatRequest key={contact._id} data={contact} socket={props.socket} />
+                    ))}
+                </Box>
+            </>
+            }
 
             <Box sx={{display: "flex", justifyContent: "center"}}>
                 <Typography variant="h6"><Contacts />&nbsp;Your Chats</Typography>
