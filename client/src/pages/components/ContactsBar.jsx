@@ -129,7 +129,7 @@ export default function ContactsBar(props) {
             }
 
             <Box sx={{display: "flex", justifyContent: "center"}}>
-                <Typography variant="h6"><Contacts />&nbsp;Your Chats</Typography>
+                <Typography variant="h6"><Contacts />&nbsp;Your Contacts</Typography>
             </Box>
             <Box sx={{ mt: "20px", mb: "20px" }}>
                 {isLoading === 'CHATS' && <Typography variant="body1"><CircularProgress size={20} />&nbsp;Loading...</Typography>}                    

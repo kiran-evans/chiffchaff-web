@@ -65,7 +65,7 @@ function App() {
                     </Box>
                 </Box>
                 <Snackbar open={snackbar.isOpen} autoHideDuration={5000} onClose={() => setSnackbar({ ...snackbar, isOpen: false })}>
-                    <Alert variant='filled' severity={snackbar.severity}>{snackbar.text}</Alert>
+                    <Alert elevation={6} variant='filled' severity={snackbar.severity}>{snackbar.text}</Alert>
                 </Snackbar>
             </BrowserRouter>
         </ThemeProvider>

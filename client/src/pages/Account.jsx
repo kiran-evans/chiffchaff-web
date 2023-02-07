@@ -143,7 +143,7 @@ export default function Account(props) {
                     <Typography variant="h5" sx={{mb: "20px"}}>Change Password</Typography>
                     <TextField sx={{mb: "10px"}} required label="New password" type="password" value={newPw1} onChange={e => setNewPw1(e.target.value)} />
                     <TextField sx={{ mb: "10px" }}
-                        error={(newPw1 && newPw2) && (newPw1 !== newPw2)}
+                        error={!!(newPw1 && newPw2) && (newPw1 !== newPw2)}
                         helperText={((newPw1 && newPw2) && (newPw1 !== newPw2)) && "Passwords do not match"}
                         required
                         label="Repeat new password"
@@ -192,9 +192,14 @@ export default function Account(props) {
                     {dialog.action === 'ARCHIVE_ACCOUNT' &&
                         <>
                         <DialogContentText>
-                            You are about to archive your account. You will still be able to login, but you won't be able to send or receive new messages or contact requests.
-                            Other users will not be able to search for your username.
+                            You are about to archive your account.
                         </DialogContentText>
+                        <ul>
+                            <li>You will still be able to login and manage your account.</li>
+                            <li>Your contacts will still be able to see your chats with them.</li>
+                            <li>You won't be able to send or receive new messages or contact requests.</li>
+                            <li>Your username will not appear in searches.</li>
+                        </ul>
                         </>
                     }
                     {dialog.action === 'RESET_ACCOUNT' &&
@@ -204,10 +209,10 @@ export default function Account(props) {
                         </DialogContentText>
                         <form>
                             <FormGroup sx={{mb: "10px"}}>
-                                <FormControlLabel control={<Checkbox onChange={e => setDeleteFromOthers(e.target.checked)} />} label="Also delete my messages from my contacts' accounts." />
+                                <FormControlLabel control={<Checkbox onChange={e => setDeleteFromOthers(e.target.checked)} />} label="Also delete the messages I have sent." />
                                 <FormHelperText>
                                     Select this option if you would like to remove the messages you have sent to your contacts from their accounts as well as yours.
-                                    If this is not enabled, your contacts will still see the messages you sent, but your details (including your username) will be removed from them.
+                                    If you choose not to select this option, your contacts will still see the messages you sent, but your details (including your username) will be removed from them.
                                 </FormHelperText>
                             </FormGroup>
                         </form>

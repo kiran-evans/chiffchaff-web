@@ -60,11 +60,13 @@ module.exports = io => {
                     chatRequests: [...tempChatRequests]
                 });
                 io.sockets.in(recipientData._id.toString()).emit('REFRESH_USER_DATA');
+                io.sockets.in(recipientData._id.toString()).emit('ALERT', { severity: 'info', text: `${senderData.username} has been added to your contacts.` });
 
                 await User.findByIdAndUpdate(senderData._id, {
                     chats: [...senderData.chats, newChat._id.toString()]
                 });
                 io.sockets.in(senderData._id.toString()).emit('REFRESH_USER_DATA');
+                io.sockets.in(senderData._id.toString()).emit('ALERT', { severity: 'success', text: `${recipientData.username} accepted your contact request.` });
 
             } catch (err) {
                 throw new Error(err);
