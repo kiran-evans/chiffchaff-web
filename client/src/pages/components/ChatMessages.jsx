@@ -41,7 +41,11 @@ export default function ChatMessages(props) {
                     flexDirection: "column"
                 }}>
                     <Box>
-                        <Typography variant="body1">{message.body}</Typography>
+                        {message.body ?
+                            <Typography variant="body1">{message.body}</Typography>
+                            :
+                            <Typography sx={{fontStyle: "oblique"}}>This message was deleted.</Typography>
+                        }
                     </Box>
 
                     <Box sx={{alignSelf: "flex-end"}}>
