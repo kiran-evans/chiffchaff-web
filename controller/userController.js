@@ -86,7 +86,7 @@ const updateUser = async (req, res) => {
 
                     for await (let message of tempChat.messages) {
                         if (message.senderId.toString() === foundUser._id.toString()) {
-                            if (req.query.deleteFromOthers === "true") { // delete user's messages for their contact as well
+                            if (req.query.deleteFromOthers === "true") { // delete user's messages from all chats
                                 message.body = null;
                             }
                             message.senderId = null;
@@ -119,6 +119,24 @@ const deleteUser = async (req, res) => {
         const foundUser = await User.findById(req.query.id);
 
         if (!foundUser) return res.status(404).json(`No user found.`);
+
+        if (req.query.deleteFromOthers === "true") {
+            for await (const chatId of foundUser.chats) {
+                const foundChat = await Chat.findById(chatId);
+                let tempChat = { ...foundChat._doc };
+
+                for await (let message of tempChat.messages) {
+                    if (message.senderId === foundUser._id.toString()) {
+                        message.body = null;
+                        message.senderId = null;
+                    }
+                }
+
+                await Chat.findByIdAndUpdate(chatId, {
+                    ...tempChat
+                });
+            }
+        }
 
         await foundUser.remove();
 

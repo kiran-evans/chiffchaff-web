@@ -3,7 +3,8 @@ import { Archive, DeleteForever, RestartAlt, Unarchive } from '@mui/icons-materi
 import axios from "axios";
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { refreshUserData } from "../context/UserActions";
+import { logoutCall, refreshUserData } from "../context/UserActions";
+import { useNavigate } from 'react-router-dom';
 
 
 export default function Account(props) {
@@ -11,6 +12,8 @@ export default function Account(props) {
     const { setSnackbar } = props;
 
     const { user, dispatch } = useContext(AuthContext);
+
+    const navigator = useNavigate();
 
     const [newUsername, setNewUsername] = useState(user.username);
     const [newEmail, setNewEmail] = useState(user.email);
@@ -101,6 +104,23 @@ export default function Account(props) {
                     setSnackbar({ isOpen: true, severity: "error", text: err.response.data });
                     return;
                 }
+
+            case 'DELETE_ACCOUNT':
+                try {
+                    await axios.delete(`${import.meta.env.ENV_SERVER_URL}/user?deleteFromOthers=${deleteFromOthers}&id=${user._id.toString()}`, {
+                        password: password
+                    });
+
+                    setIsLoading(false);
+                    logoutCall(user, dispatch);
+                    navigator("/");
+                    return;
+
+                } catch (err) {
+                    setIsLoading(false);
+                    setSnackbar({ isOpen: true, severity: "error", text: err.response.data });
+                    return;
+                }
             
             default:
                 setIsLoading(false);
@@ -181,7 +201,13 @@ export default function Account(props) {
             </Tooltip>
 
             <Tooltip arrow title="Delete your account. You will be able to choose which data is also deleted.">
-                <Button type="button" variant="outlined" color="error" sx={{mb: "10px"}}><DeleteForever />&nbsp;Delete Account</Button>
+                
+                <Button
+                    onClick={() => setDialog({ isOpen: true, title: "Delete Account", action: 'DELETE_ACCOUNT' })}
+                    type="button"
+                    variant="outlined"
+                    color="error"
+                    sx={{ mb: "10px" }}><DeleteForever />&nbsp;Delete Account</Button>
             </Tooltip>
 
 
@@ -205,7 +231,23 @@ export default function Account(props) {
                     {dialog.action === 'RESET_ACCOUNT' &&
                         <>
                         <DialogContentText>
-                            You are about to reset your account. This will delete all your chats and contacts.
+                            You are about to reset your account. This will delete all your chats and contacts. This cannot be undone.
+                        </DialogContentText>
+                        <form>
+                            <FormGroup sx={{mb: "10px"}}>
+                                <FormControlLabel control={<Checkbox onChange={e => setDeleteFromOthers(e.target.checked)} />} label="Also delete the messages I have sent." />
+                                <FormHelperText>
+                                    Select this option if you would like to remove the messages you have sent to your contacts from their accounts as well as yours.
+                                    If you choose not to select this option, your contacts will still see the messages you sent, but your details (including your username) will be removed from them.
+                                </FormHelperText>
+                            </FormGroup>
+                        </form>
+                        </>
+                    }
+                    {dialog.action === 'DELETE_ACCOUNT' &&
+                        <>
+                        <DialogContentText>
+                            You are about to delete your account. This will delete all your chats and contacts. This cannot be undone.
                         </DialogContentText>
                         <form>
                             <FormGroup sx={{mb: "10px"}}>
@@ -224,7 +266,7 @@ export default function Account(props) {
                     </form>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setDialog({...dialog, isOpen: false})} color="error" disabled={isLoading}>Cancel</Button>
+                    <Button onClick={() => setDialog({...dialog, isOpen: false})} color="error" variant="outlined" disabled={isLoading}>Cancel</Button>
                     <Button onClick={() => handleSubmit(dialog.action)} variant="contained" disabled={isLoading}>{isLoading ? <><CircularProgress size={20} />&nbsp;Loading...</> : 'Confirm'}</Button>
                 </DialogActions>
             </Dialog>
