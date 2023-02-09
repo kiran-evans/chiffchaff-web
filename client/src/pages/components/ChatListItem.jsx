@@ -11,14 +11,25 @@ export default function ChatListItem(props) {
     const { data, selectedChat } = props;
 
     const { user } = useContext(AuthContext);
-    const [contact, setContact] = useState(null);
+    const [contact, setContact] = useState({username: "Deleted User", isArchived: true});
 
     useEffect(() => {
         const getContactData = async () => {
             try {
-                const contactId = data.participants[0] === user._id.toString() ? data.participants[1] : data.participants[0];
-                const res = await axios.get(`${import.meta.env.ENV_SERVER_URL}/user?id=${contactId}`);
-                setContact(res.data);
+                const contactId = () => {
+                    if (data.participants[0] && data.participants[0] !== user._id.toString()) {
+                        return data.participants[0];
+                    } else if (data.participants[1] && data.participants[1] !== user._id.toString()) {
+                        return data.participants[1];
+                    }
+                    return null;
+                }
+                if (contactId()) {
+                    const res = await axios.get(`${import.meta.env.ENV_SERVER_URL}/user?id=${contactId()}`);
+                    setContact(res.data);
+                } else {
+                    setContact({ username: "Deleted User", isArchived: true });
+                }
             } catch (err) {
                 throw new Error(err.response.data);
             }

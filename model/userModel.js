@@ -36,6 +36,11 @@ const userModel = mongoose.Schema({
             }
             return color;
         }
+    },
+    isArchived: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 });
 

@@ -45,12 +45,14 @@ export default {
         }
     },
     components: {
-        MuiLink: {
-            styleOverrides: {
-                root: {
-                    cursor: "pointer"
+        MuiCssBaseline: {
+            styleOverrides: `
+                a {
+                    cursor: pointer;
+                    color: inherit;
+                    text-decoration: none;
                 }
-            }
+            `,
         },
         MuiTypography: {
             styleOverrides: {
@@ -74,10 +76,26 @@ export default {
                 }
             }
         },
+        MuiTooltip: {
+            styleOverrides: {
+                root: {
+                    cursor: "help"
+                }
+            }
+        },
         MuiAvatar: {
             styleOverrides: {
                 root: {
                     color: "#fafafa"
+                }
+            }
+        },
+        MuiAccordion: {
+            styleOverrides: {
+                root: {
+                    "&.Mui-expanded": {
+                        margin: 0   
+                    }
                 }
             }
         }
