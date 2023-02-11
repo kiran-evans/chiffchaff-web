@@ -66,7 +66,7 @@ export default function ChatContainer(props) {
     }, [chat]);
 
     const handleTyping = e => {
-        setTextContent(e.target.value)
+        setTextContent(e.target.value);
     }
 
     const handleMessageSend = e => {

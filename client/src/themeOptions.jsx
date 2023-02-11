@@ -69,9 +69,8 @@ export default {
                 },
                 h2: {
                     textTransform: "uppercase",
-                    fontSize: 45,
+                    fontSize: 35,
                     color: dark1,
-                    fontWeight: 600,
                     fontFamily: "'Palanquin Dark', sans-serif"
                 }
             }

@@ -23,6 +23,7 @@ function App() {
 
     const [isConnected, setIsConnected] = useState(false);
     const [snackbar, setSnackbar] = useState({isOpen: false, severity: "info", text: ""});
+    const [drawer, setDrawer] = useState({isOpen: false});
 
     useEffect(() => {
         socket.on('connect', () => {
@@ -55,10 +56,10 @@ function App() {
             <CssBaseline />
             <BrowserRouter>
                 <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-                    {user && <Header />}
+                    {user && <Header drawer={drawer} setDrawer={setDrawer} />}
                     <Box sx={{height: user ? "95vh" : "100vh", display: "flex", flexDirection: "column"}}>
                     <Routes>
-                        <Route exact path="/" element={user ? <Dashboard socket={socket} isConnected={isConnected} setSnackbar={setSnackbar} /> : <Navigate to="/login" />} />
+                        <Route exact path="/" element={user ? <Dashboard socket={socket} isConnected={isConnected} setSnackbar={setSnackbar} drawer={drawer} setDrawer={setDrawer} /> : <Navigate to="/login" />} />
                         <Route exact path="/login" element={user ? <Navigate to="/" /> : <Splash setSnackbar={setSnackbar} />} />
                         <Route exact path="/account" element={user ? <Account setSnackbar={setSnackbar} /> : <Navigate to="/" />} />
                     </Routes>
