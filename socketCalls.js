@@ -48,7 +48,8 @@ module.exports = io => {
 
             try {
                 const newChat = new Chat({
-                    participants: [recipientData._id.toString(), senderData._id.toString()]
+                    participants: [recipientData._id.toString(), senderData._id.toString()],
+                    lastModified: Date()
                 });
 
                 await newChat.save();
@@ -104,8 +105,46 @@ module.exports = io => {
                 const foundChat = await Chat.findById(chatData._id.toString());
 
                 await Chat.findByIdAndUpdate(chatData._id, {
-                    messages: [...foundChat._doc.messages, newMessage]
+                    messages: [...foundChat._doc.messages, newMessage],
+                    lastModified: Date()
                 });
+
+            } catch (err) {
+                throw new Error(err);
+            }
+        });
+
+        socket.on('REMOVE_CONTACT', async params => {
+            const { userData, contactData, chatData } = params;
+
+            try {
+                let tempUser = { ...userData };
+                let tempChat = { ...chatData };
+
+                for await (let participantId of tempChat.participants) {
+                    if (participantId === userData._id.toString()) {
+                        tempChat.participants[tempChat.participants.indexOf(userData._id.toString())] = null; // remove user details from chat
+                        break;
+                    }
+                }
+
+                await Chat.findByIdAndUpdate(chatData._id.toString(), {
+                    ...tempChat,
+                    lastModified: Date()
+                });
+
+                for await (let chatId of tempUser.chats) {
+                    if (chatId === tempChat._id.toString()) {
+                        tempUser.chats.splice(tempUser.chats.indexOf(chatId), 1);
+                    }
+                }
+
+                await User.findByIdAndUpdate(userData._id.toString(), {
+                    ...tempUser
+                });
+
+                io.sockets.in(userData._id.toString()).emit('REFRESH_USER_DATA');
+                io.sockets.in(contactData._id.toString()).emit('REFRESH_USER_DATA');
 
             } catch (err) {
                 throw new Error(err);

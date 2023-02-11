@@ -50,7 +50,7 @@ export default function Splash(props) {
         <Box sx={{ flex: 1, display: "flex", alignItems: "center"}}>
             <Box sx={{ flex: 1, height: "100%", backgroundColor: "primary.main", display: "flex", justifyContent: "center", alignItems: "center" }}>
                 <Typography variant="h1" color="background.default">Chiffchaff</Typography>
-                <img src="logo-icon.png" width="140" />
+                <img src="logo-icon.png" style={{width: 85, margin: "0 20px"}} />
             </Box>
             <Box sx={{ flex: 1, display: "flex", alignItems: "center", flexDirection: "column" }}>
                 {hasAccount ? 
