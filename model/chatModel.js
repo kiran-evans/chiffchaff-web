@@ -10,6 +10,10 @@ const chatModel = mongoose.Schema({
         type: Array,
         required: true,
         default: []
+    },
+    lastModified: {
+        type: Date,
+        required: true
     }
 });
 
