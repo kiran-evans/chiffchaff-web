@@ -80,6 +80,13 @@ export default function ChatContainer(props) {
         setIsLoading(null);
     }
 
+    const handleRemoveClick = () => {
+        setIsLoading('CONTACT');
+        socket.emit('REMOVE_CONTACT', { userData: user, contactData: contact, chatData: chat });
+
+        setIsLoading(null);
+    }
+
     return (
         <Box sx={{flex: 1, display: "flex", flexDirection: "column"}}>
             <Box sx={{ height: "7%", display: "flex", padding: "20px 40px", backgroundColor: "background.paper" }}>
@@ -90,31 +97,33 @@ export default function ChatContainer(props) {
                             <Typography variant="h4">{contact.username}</Typography>
                         </Box>
 
-                        <Box sx={{ display: "flex", justifyContent: "center" }}>
-                            <Tooltip title="Remove contact">
-                                <IconButton>
-                                    <PersonRemove sx={{color: "text.primary"}} />
-                                </IconButton>
-                            </Tooltip>
+                        {contact._id && 
+                            <Box sx={{ display: "flex", justifyContent: "center" }}>
+                                <Tooltip title="Remove contact">
+                                    <IconButton onClick={() => handleRemoveClick()}>
+                                        <PersonRemove sx={{color: "text.primary"}} />
+                                    </IconButton>
+                                </Tooltip>
 
-                            <Tooltip title="Mute contact">
-                                <IconButton>
-                                    <VoiceOverOff sx={{color: "text.primary"}} />
-                                </IconButton>
-                            </Tooltip>
+                                <Tooltip title="Mute contact">
+                                    <IconButton>
+                                        <VoiceOverOff sx={{color: "text.primary"}} />
+                                    </IconButton>
+                                </Tooltip>
 
-                            <Tooltip title="Block user">
-                                <IconButton>
-                                    <Block sx={{color: "text.primary"}} />
-                                </IconButton>
-                            </Tooltip>
+                                <Tooltip title="Block user">
+                                    <IconButton>
+                                        <Block sx={{color: "text.primary"}} />
+                                    </IconButton>
+                                </Tooltip>
 
-                            <Tooltip title="Report user">
-                                <IconButton>
-                                    <Report sx={{color: "text.primary"}} />
-                                </IconButton>
-                            </Tooltip>
-                        </Box>
+                                <Tooltip title="Report user">
+                                    <IconButton>
+                                        <Report sx={{color: "text.primary"}} />
+                                    </IconButton>
+                                </Tooltip>
+                            </Box>
+                        }
                     </Box>
                 }
                 {isLoading === 'CONTACT' && <Typography variant="body1"><CircularProgress size={20} />&nbsp;Loading...</Typography>}

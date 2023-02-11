@@ -106,7 +106,7 @@ export default function ContactsBar(props) {
                 } value={searchQuery} type="search" onChange={e => setSearchQuery(e.target.value)} placeholder="Search users" />
             </Box>
             <Box sx={{ alignSelf: "flex-start", mb: "40px" }}>
-                {isLoading === 'USERS' && <Typography variant="body1"><CircularProgress size={50} />&nbsp;Searching...</Typography>}
+                {isLoading === 'USERS' && <Typography variant="body1"><CircularProgress size={20} />&nbsp;Searching...</Typography>}
                 {foundUsers && (foundUsers.length > 0 ?
                     foundUsers.map(foundUser => (
                         <UserSearchResultItem key={foundUser._id} data={foundUser} socket={props.socket} />
