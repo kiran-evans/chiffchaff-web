@@ -48,7 +48,8 @@ module.exports = io => {
 
             try {
                 const newChat = new Chat({
-                    participants: [recipientData._id.toString(), senderData._id.toString()]
+                    participants: [recipientData._id.toString(), senderData._id.toString()],
+                    lastModified: Date()
                 });
 
                 await newChat.save();
@@ -104,7 +105,8 @@ module.exports = io => {
                 const foundChat = await Chat.findById(chatData._id.toString());
 
                 await Chat.findByIdAndUpdate(chatData._id, {
-                    messages: [...foundChat._doc.messages, newMessage]
+                    messages: [...foundChat._doc.messages, newMessage],
+                    lastModified: Date()
                 });
 
             } catch (err) {
@@ -127,7 +129,8 @@ module.exports = io => {
                 }
 
                 await Chat.findByIdAndUpdate(chatData._id.toString(), {
-                    ...tempChat
+                    ...tempChat,
+                    lastModified: Date()
                 });
 
                 for await (let chatId of tempUser.chats) {

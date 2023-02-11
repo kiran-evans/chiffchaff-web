@@ -93,7 +93,10 @@ const updateUser = async (req, res) => {
                         }
                     }
 
-                    await Chat.findByIdAndUpdate(chatId, { ...tempChat });
+                    await Chat.findByIdAndUpdate(chatId, {
+                        ...tempChat,
+                        lastModified: Date()
+                    });
                     tempBody.chats = [];
                     tempBody.isArchived = false;
                 }
@@ -133,7 +136,8 @@ const deleteUser = async (req, res) => {
                 }
 
                 await Chat.findByIdAndUpdate(chatId, {
-                    ...tempChat
+                    ...tempChat,
+                    lastModified: Date()
                 });
             }
         }

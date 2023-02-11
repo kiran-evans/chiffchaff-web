@@ -1,4 +1,4 @@
-import { AppBar, Avatar, Box, IconButton, Tooltip, Typography } from '@mui/material'
+import { AppBar, Box, IconButton, Tooltip, Typography } from '@mui/material'
 import { Logout, Menu } from '@mui/icons-material'
 import { useContext } from 'react'
 import { AuthContext } from '../../context/AuthContext'
@@ -32,17 +32,6 @@ export default function Header(props) {
             </Box>
 
             <Box sx={{ flex: 5, alignSelf: "center", display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
-                <Tooltip arrow title="Go to your account">
-                    <Link to="/account">
-                        <Box sx={{display: "flex", mr: "10px"}}>
-                            <Avatar sx={{ backgroundColor: user.userColor, mr: "10px" }}>
-                                <Typography variant="h5">{user.username[0].toUpperCase()}</Typography>
-                            </Avatar>
-                            <Typography variant="h5">{user.username}</Typography>
-                        </Box>
-                    </Link>
-                </Tooltip>
-
                 <Tooltip arrow title="Logout">
                     <IconButton onClick={() => handleLogoutClick()}>
                             <Logout fontSize="large" sx={{ color: "background.default"}} />

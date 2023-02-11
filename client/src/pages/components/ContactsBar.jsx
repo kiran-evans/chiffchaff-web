@@ -44,6 +44,15 @@ export default function ContactsBar(props) {
                     throw new Error(err.response.data);
                 }
             }
+
+            console.log(tempChats);
+
+            tempChats.sort(function(a, b) {
+                return Date.parse(b.lastModified) - Date.parse(a.lastModified);
+            });
+
+            console.log(tempChats);
+
             setChats([...tempChats]);
 
             if (user.chats.length > 0) {
