@@ -28,7 +28,13 @@ export default function ChatMessages(props) {
     }, []);
 
     return (
-        <Box sx={{height: "100%", overflowY: "scroll", flex: 1, display: "flex", flexDirection: "column", padding: "20px 20px 0px 20px"}}>
+        <Box sx={{
+            flex: 40,
+            padding: "20px 20px 50px 20px",
+            display: "flex",
+            flexDirection: "column",
+            overflowY: "auto"
+        }}>
             {displayMessages.map(message => (
                 <Box key={message._id} sx={{
                     bgcolor: message.senderId === user._id.toString() ? 'background.paper' : 'primary.main',
@@ -53,7 +59,8 @@ export default function ChatMessages(props) {
                     </Box>
                 </Box>
             ))}
-            <div id="chatEnd" style={{ paddingBottom: "50px" }} />
+
+            <div id="chatEnd" style={{ height: 0 }} />
         </Box>        
     )
 }

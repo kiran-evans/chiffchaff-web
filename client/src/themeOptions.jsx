@@ -63,15 +63,21 @@ export default {
                 h1: {
                     textTransform: "uppercase",
                     fontWeight: 600,
-                    fontSize: 110,
+                    fontSize: "2.5rem",
                     color: dark1,
                     fontFamily: "'Palanquin Dark', sans-serif"
                 },
                 h2: {
                     textTransform: "uppercase",
-                    fontSize: 35,
+                    fontSize: "1.7rem",
                     color: dark1,
                     fontFamily: "'Palanquin Dark', sans-serif"
+                },
+                h3: {
+                    fontSize: "3rem"
+                },
+                h4: {
+                    fontSize: "1.6rem"
                 }
             }
         },
@@ -95,6 +101,13 @@ export default {
                     "&.Mui-expanded": {
                         margin: 0   
                     }
+                }
+            }
+        },
+        MuiInput: {
+            styleOverrides: {
+                root: {
+                    borderBottom: "1px solid primary.main"
                 }
             }
         }
