@@ -45,13 +45,9 @@ export default function ContactsBar(props) {
                 }
             }
 
-            console.log(tempChats);
-
             tempChats.sort(function(a, b) {
                 return Date.parse(b.lastModified) - Date.parse(a.lastModified);
             });
-
-            console.log(tempChats);
 
             setChats([...tempChats]);
 
@@ -103,7 +99,7 @@ export default function ContactsBar(props) {
     }
     
     return (
-        <Box sx={{flex: 1, display: "flex", flexDirection: "column", padding: "20px 15px", borderRight: "2px solid", borderColor: "background.card" }}>
+        <Box sx={{flex: 30, display: "flex", flexDirection: "column", padding: "20px 15px", borderRight: "2px solid", borderColor: "background.card" }}>
             <Box sx={{display: "flex", justifyContent: "center"}}>
                 <Typography variant="h6"><PersonSearch />&nbsp;Find Contacts</Typography>
             </Box>

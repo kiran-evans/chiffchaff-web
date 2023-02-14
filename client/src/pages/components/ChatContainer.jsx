@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
-import { Avatar, Box, CircularProgress, IconButton, Input, InputAdornment, Tooltip, Typography } from '@mui/material';
-import { Block, PersonRemove, Report, Send, VoiceOverOff } from '@mui/icons-material';
+import { Avatar, Box, CircularProgress, IconButton, Input, InputAdornment, Menu, MenuItem, Typography } from '@mui/material';
+import { Block, ManageAccounts, PersonRemove, Report, Send, VoiceOverOff } from '@mui/icons-material';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useEffect } from 'react';
@@ -16,6 +16,7 @@ export default function ChatContainer(props) {
     const [contact, setContact] = useState({ username: "Deleted User", isArchived: true, isDeleted: true });
     const [isLoading, setIsLoading] = useState(null);
     const [messages, setMessages] = useState([...chat.messages]);
+    const [menu, setMenu] = useState({ isOpen: false, anchorEl: null });
 
     const getContactData = async contactId => {
         try {
@@ -52,6 +53,7 @@ export default function ChatContainer(props) {
             getContactData(null);
         }
         getMessages();
+        setMenu({ ...menu, isOpen: false });
     }, []);
 
     useEffect(() => {
@@ -83,63 +85,56 @@ export default function ChatContainer(props) {
     const handleRemoveClick = () => {
         setIsLoading('CONTACT');
         socket.emit('REMOVE_CONTACT', { userData: user, contactData: contact, chatData: chat });
-
+        setMenu({ ...menu, isOpen: false });
         setIsLoading(null);
     }
 
     return (
-        <Box sx={{flex: 1, display: "flex", flexDirection: "column"}}>
-            <Box sx={{ height: "7%", display: "flex", padding: "20px 40px", backgroundColor: "background.paper" }}>
-                {contact &&
-                    <Box sx={{flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between"}}>
-                        <Box sx={{display: "flex"}}>
-                            <Avatar sx={{backgroundColor: contact.userColor, height: 50, width: 50, fontSize: 30, borderWidth: "3px", mr: "10px"}}>{contact.username[0].toUpperCase()}</Avatar>
-                            <Typography variant="h4">{contact.username}</Typography>
-                        </Box>
-
-                        {contact._id && 
-                            <Box sx={{ display: "flex", justifyContent: "center" }}>
-                                <Tooltip title="Remove contact">
-                                    <IconButton onClick={() => handleRemoveClick()}>
-                                        <PersonRemove sx={{color: "text.primary"}} />
-                                    </IconButton>
-                                </Tooltip>
-
-                                <Tooltip title="Mute contact">
-                                    <IconButton>
-                                        <VoiceOverOff sx={{color: "text.primary"}} />
-                                    </IconButton>
-                                </Tooltip>
-
-                                <Tooltip title="Block user">
-                                    <IconButton>
-                                        <Block sx={{color: "text.primary"}} />
-                                    </IconButton>
-                                </Tooltip>
-
-                                <Tooltip title="Report user">
-                                    <IconButton>
-                                        <Report sx={{color: "text.primary"}} />
-                                    </IconButton>
-                                </Tooltip>
-                            </Box>
-                        }
+        <Box sx={{ height: "94vh", display: "flex", flexDirection: "column" }}>
+            {contact &&
+                <Box sx={{
+                    flex: 1,
+                    display: "flex",
+                    padding: "1rem 1.5rem",
+                    backgroundColor: "background.paper",
+                    alignItems: "center",
+                    justifyContent: "space-between"
+                }}>
+                    <Box sx={{display: "flex", alignItems: "center"}}>
+                        <Avatar sx={{backgroundColor: contact.userColor, height: "2rem", width: "2rem", fontSize: "1.5rem", borderWidth: "3px", mr: "10px"}}>{contact.username[0].toUpperCase()}</Avatar>
+                        <Typography variant="h4">{contact.username}</Typography>
                     </Box>
-                }
-                {isLoading === 'CONTACT' && <Typography variant="body1"><CircularProgress size={20} />&nbsp;Loading...</Typography>}
-            </Box>
+
+                    {contact._id && 
+                        <>
+                        <IconButton onClick={e => setMenu({ isOpen: true, anchorEl: e.currentTarget })} sx={{border: "1px solid", borderColor: "text.primary"}}>
+                            <ManageAccounts sx={{color: "text.primary", fontSize: "1.6rem"}} />
+                        </IconButton>
+                        <Menu
+                            anchorEl={menu.anchorEl}
+                            open={menu.isOpen}
+                            onClose={() => setMenu({ ...menu, isOpen: false })}
+                        >
+                            <MenuItem onClick={() => handleRemoveClick()}><PersonRemove sx={{ color: "text.primary", fontSize: "1.3rem" }} />&nbsp;Remove {contact.username}</MenuItem>
+                            <MenuItem><VoiceOverOff sx={{ color: "text.primary", fontSize: "1.3rem" }} />&nbsp;Mute {contact.username}</MenuItem>
+                            <MenuItem><Block sx={{ color: "text.primary", fontSize: "1.3rem" }} />&nbsp;Block {contact.username}</MenuItem>
+                            <MenuItem><Report sx={{ color: "text.primary", fontSize: "1.3rem" }} />&nbsp;Report {contact.username}</MenuItem>
+                        </Menu>
+                        </>
+                    }
+                </Box>
+            }
+            {isLoading === 'CONTACT' && <Typography variant="body1"><CircularProgress size={20} />&nbsp;Loading...</Typography>}
             
-            <Box sx={{ height: "88%", display: "flex" }}>
-                <ChatMessages socket={socket} messages={messages} />
-            </Box>
+            <ChatMessages socket={socket} messages={messages} />
             {isLoading === 'MESSAGES' && <Typography variant="body1"><CircularProgress size={25} />&nbsp;Loading messages...</Typography>}
             
 
-            <Box sx={{height: "5%", display: "flex", justifyContent: "center", backgroundColor: "background.paper"}}>
+            <Box sx={{ flex: 1, display: "flex", flexDirection: "column", backgroundColor: "background.paper"}}>
                 {!user.isArchived ? 
                     !contact.isArchived ?
-                        <form onSubmit={e => handleMessageSend(e)} style={{height: "100%", flex: 1, display: "flex"}}>
-                            <Input sx={{ height: "100%", fontSize: 20, padding: "10px 20px 10px 20px", flex: 1 }}
+                        <form onSubmit={e => handleMessageSend(e)} style={{ flex: 1, display: "flex" }}>
+                            <Input sx={{ flex: 1, fontSize: "1.3rem", padding: "10px 20px 10px 20px" }}
                                 type="text"
                                 variant="outlined"
                                 placeholder='Type here'
@@ -151,7 +146,7 @@ export default function ChatContainer(props) {
                                             <Typography variant="body1"><CircularProgress size={20} />&nbsp;Sending...</Typography>
                                             :
                                             <IconButton onClick={e => handleMessageSend(e)}>
-                                                <Send color="primary" fontSize='large' />
+                                                <Send color="primary" sx={{fontSize: "2rem"}} />
                                             </IconButton>
                                         }
                                 </InputAdornment>
