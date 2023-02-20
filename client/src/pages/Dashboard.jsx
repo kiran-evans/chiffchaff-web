@@ -10,6 +10,8 @@ import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { logoutCall } from '../context/UserActions';
+import { Container } from '@mui/system';
+import UserSearchbar from './components/UserSearchbar';
 export default function Dashboard(props) {
 
     const { user, dispatch } = useContext(AuthContext);
@@ -77,8 +79,14 @@ export default function Dashboard(props) {
                 </Box>
             </SwipeableDrawer>
             
-            {selectedChat &&
+            {selectedChat ?
                 <ChatContainer socket={socket} chat={selectedChat} setSnackbar={setSnackbar} />
+                :
+                <Container sx={{ padding: "20px 20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <Typography variant="h4">It looks like you don't have any contacts yet.</Typography>
+                    <Typography variant="h5">Start by finding someone to chat with!</Typography>
+                    <UserSearchbar socket={socket} />
+                </Container>
             }
         </Box>
     )
