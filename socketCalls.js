@@ -31,11 +31,11 @@ module.exports = io => {
                     return io.sockets.in(userData._id.toString()).emit('ALERT', { severity: 'error', text: `${contactData.username} cannot receive contact requests because their account is archived.` });
                 }
 
-                await User.findByIdAndUpdate(contactData._id.toString(), {
-                    chatRequests: [...contactData.chatRequests, userData._id.toString()]
+                await User.findByIdAndUpdate(foundContact._id.toString(), {
+                    chatRequests: [...foundContact.chatRequests, userData._id.toString()]
                 });
-                io.sockets.in(contactData._id.toString()).emit('CHAT_REQUEST', userData);
-                io.sockets.in(contactData._id.toString()).emit('ALERT', { severity: 'info', text: `${userData.username} sent you a contact request.` });
+                io.sockets.in(foundContact._id.toString()).emit('CHAT_REQUEST', userData);
+                io.sockets.in(foundContact._id.toString()).emit('ALERT', { severity: 'info', text: `${userData.username} sent you a contact request.` });
                 
                 io.sockets.in(userData._id.toString()).emit('ALERT', { severity: 'success', text: `Request sent.` });
             } catch (err) {

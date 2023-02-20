@@ -51,6 +51,10 @@ function App() {
         }
     }, [user]);
 
+    useEffect(() => {
+        refreshUserData(JSON.parse(localStorage.getItem('loggedInUser')), dispatch);
+    }, []);
+
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />

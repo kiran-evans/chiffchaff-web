@@ -31,7 +31,7 @@ const getUser = async (req, res) => {
 
             for (const user of foundUsers) {
                 if (user._id.toString() === req.query.id || user.isArchived) continue;
-                const { password, ...userBody } = user._doc;
+                const { email, password, chats, chatRequests, __v, ...userBody } = user._doc;
                 foundUsersList.push(userBody);
             };
 
@@ -44,15 +44,7 @@ const getUser = async (req, res) => {
             if (!foundUser) return res.status(404).json(`No user found.`);
 
             const { password, ...userBody } = foundUser._doc;
-            return res.status(200).json(userBody);
-        }
 
-        if (req.body.username) {
-            const foundUser = await User.findOne({ username: req.body.username });
-
-            if (!foundUser) return res.status(404).json(`No user found.`);
-
-            const { password, ...userBody } = foundUser._doc;
             return res.status(200).json(userBody);
         }
 
@@ -162,6 +154,7 @@ const loginUser = async (req, res) => {
         if (!passwordIsValid) return res.status(400).json(`Invalid password.`);
 
         const { password, ...userBody } = foundUser._doc;
+        
         return res.status(200).json(userBody);
 
     } catch (err) {
